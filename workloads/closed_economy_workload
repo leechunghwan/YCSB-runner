@@ -1,7 +1,7 @@
-recordcount=10000
-operationcount=1000000
+recordcount=100
+operationcount=10000
 workload=com.yahoo.ycsb.workloads.ClosedEconomyWorkload
-totalcash=10000000
+totalcash=100000
 
 readproportion=0.9
 updateproportion=0
