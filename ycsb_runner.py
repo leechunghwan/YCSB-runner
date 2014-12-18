@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import sys
 import subprocess
 import configparser
@@ -13,7 +14,9 @@ SUPPORTED_DBS = [
     'cassandra',
 ]
 
-# Clean database commands
+# Commands for truncating each DBMS
+# NOTE: PostgreSQL requires the database user password to be specified in a
+# .pgpass file in the user's home directory
 CLEAN_COMMANDS = {
     'mysql'     : ["mysql", "-u", "ycsb", "-pycsb", "-e", "TRUNCATE TABLE usertable;", "ycsb"],
     'psql'      : ["psql", "--host", "localhost", "-d", "ycsb", "-U", "ycsb", "-c", "TRUNCATE TABLE usertable;"],
@@ -32,6 +35,15 @@ def clean(db):
         subprocess.call(CLEAN_COMMANDS['psql'])
     else:
         subprocess.call(CLEAN_COMMANDS[db.lower()])
+
+# Gets the first match group, cast to a float(), by running the given regex on
+# the given string, or returns 0 if no matches were found
+def getReMatch(regex, string):
+    res = regex.search(string)
+    if res != None and len(res.groups()) > 0:
+        return float(res.group(1))
+    else:
+        return float()
 
 if len(sys.argv) < 2:
     usage()
@@ -72,19 +84,30 @@ for db in config.sections():
         "1",
     ]
 
-    # Variables to hold stats data
-    # TODO
+    # Regex precompilation, and Variables to hold stats data
+    regexps = {
+        'totalcash'  : re.compile(r"TOTAL CASH], ([0-9]+)$"),
+        'countcash'  : re.compile(r"COUNTED CASH], ([0-9]+)$"),
+        'opcount'    : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)$"),
+        'runtime'    : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)$"),
+        'throughput' : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)$"),
+    }
+    run_stats = []
 
     # Run YCSB job trials number of times, and collect average statistics
-    for i in range(trials):
-        # Clean the database
-        db = db.lower()
-        clean(db)
-        # Load the data
-        subprocess.call(ycsb_load)
+    for trial in range(trials):
+        print("Starting trial %i" % trial)
         # Track the MPL
-        i = min_mpl
-        while i <= max_mpl:
+        mpl = min_mpl
+        while mpl + inc_mpl <= max_mpl:
+            # Clean the database
+            print("Cleaning the database...")
+            db = db.lower()
+            clean(db)
+            # Load the data
+            print("Loading YCSB data...")
+            subprocess.call(ycsb_load)
+            print("Running with MPL %i" % mpl)
             # Build the YCSB run command
             ycsb_run = [
                 "ycsb",
@@ -94,12 +117,35 @@ for db in config.sections():
                 os.path.join(os.getcwd(), workload),
                 "-s",
                 "-threads",
-                str(i),
+                str(mpl),
             ]
-            i += inc_mpl
+            # Store strings from regex matches
+            stats = {
+                'totalcash': float(),
+                'countcash': float(),
+                'opcount': float(),
+                'runtime': float(),
+                'throughput': float(),
+                'mpl': int(),
+                'trial': int(),
+            }
             # Execute YCSB workload
             proc = subprocess.Popen(ycsb_run, stdout=subprocess.PIPE)
-            output = proc.communicate()[0]
-            # Extract statistics from output
-            # Everybody stand back! I know regular expressions!
-
+            for line in proc.stdout:
+                line = line.decode("utf_8")
+                sys.stdout.write(line)
+                # Extract statistics from output
+                # Everybody stand back! I know regular expressions!
+                for stat, regex in regexps.items():
+                    m = getReMatch(regex, line)
+                    if m > 0:
+                        stats[stat] = m
+            if stats['runtime'] > 0:
+                stats['mpl'] = mpl
+                stats['trial'] = trial
+                run_stats.append(stats)
+            mpl += inc_mpl # increment the MPL by the configured amount
+        print("Done!")
+        print("Raw running statistics are below:")
+        for stat in run_stats:
+            print(stat)
