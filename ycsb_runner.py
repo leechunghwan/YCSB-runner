@@ -40,11 +40,13 @@ REGEXPS = {
     'throughput'   : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
 }
 
+# Print usage info and exit
 def usage():
     print("Usage: %s configfile" % sys.argv[0])
     sys.exit(1)
 
 def clean(db):
+    # JDBC has two possibilities: MySQL or PostgreSQL
     if db.lower() == "jdbc":
         subprocess.call(CLEAN_COMMANDS['mysql'])
         subprocess.call(CLEAN_COMMANDS['psql'])
