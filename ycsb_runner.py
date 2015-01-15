@@ -28,11 +28,47 @@ SUPPORTED_DBS = [
 # NOTE: PostgreSQL requires the database user password to be specified in a
 # .pgpass file in the user's home directory
 CLEAN_COMMANDS = {
-    'mysql'     : ["mysql", "-u", "ycsb", "-pycsb", "-e", "TRUNCATE TABLE usertable;", "ycsb"],
-    'psql'      : ["psql", "--host", "localhost", "-d", "ycsb", "-U", "ycsb", "-c", "TRUNCATE TABLE usertable;"],
-    'mongodb'   : ["mongo", "--host", "localhost", "--eval", "db.dropDatabase();", "ycsb"],
-    'redis'     : ["redis-cli", "-r", "1", "FLUSHALL"],
-    'cassandra' : ["cqlsh", "-k", "usertable", "-e", "TRUNCATE data;"],
+    'mysql': [
+        "mysql",
+        "-u",
+        "ycsb",
+        "-pycsb",
+        "-e",
+        "TRUNCATE TABLE usertable;",
+        "ycsb"
+    ],
+    'psql': [
+        "psql",
+        "--host",
+        "localhost",
+        "-d",
+        "ycsb",
+        "-U",
+        "ycsb",
+        "-c",
+        "TRUNCATE TABLE usertable;"
+    ],
+    'mongodb': [
+        "mongo",
+        "--host",
+        "localhost",
+        "--eval",
+        "db.dropDatabase();",
+        "ycsb"
+    ],
+    'redis': [
+        "redis-cli",
+        "-r",
+        "1",
+        "FLUSHALL"
+    ],
+    'cassandra': [
+        "cqlsh",
+        "-k",
+        "usertable",
+        "-e",
+        "TRUNCATE data;"
+    ],
 }
 
 # Regex precompilation
