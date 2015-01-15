@@ -7,6 +7,7 @@ import sys
 import subprocess
 import configparser
 
+from shutil      import copyfile
 from datetime    import datetime
 from itertools   import count
 from collections import defaultdict
@@ -14,9 +15,6 @@ from collections import OrderedDict
 
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
-
-# Output directories
-CSV_OUT_DIR = "output/csv"
 
 # Supported database systems
 SUPPORTED_DBS = [
@@ -98,6 +96,7 @@ for db in config.sections():
     output   = config.get(db, "output").lower()
     # YCSB workload file to be used
     workload = config.get(db, "workload")
+    workload_path = os.path.join(os.getcwd(), workload)
 
     # Only CSV output is supported for now
     if output not in SUPPORTED_OUTPUTS:
@@ -111,7 +110,7 @@ for db in config.sections():
         "load",
         db,
         "-P",
-        os.path.join(os.getcwd(), workload),
+        workload_path,
         "-s",
         "-threads",
         "1",
@@ -193,10 +192,14 @@ for db in config.sections():
 
     # We name output according to this timestamp
     datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    outdir = os.path.join(".", datestr)
+
+    # Copy workload file to output
+    workload_filename = "workload-{}-{}".format(db, datestr)
+    copyfile(workload_path, os.path.join(outdir, workload_filename))
 
     # Handle each output format
     if output == "csv":
-        outdir = os.path.join(".", CSV_OUT_DIR, datestr)
 
         # Timestamp dir
         # Make CSV output dir if not exists
