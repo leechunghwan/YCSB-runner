@@ -1,0 +1,50 @@
+recordcount=100
+operationcount=10000
+workload=com.yahoo.ycsb.workloads.ClosedEconomyWorkload
+totalcash=100000
+
+readproportion=0.9
+updateproportion=0
+insertproportion=0
+scanproportion=0
+readmodifywriteproportion=0.1
+requestdistribution=zipfian
+
+fieldcount=1
+fieldlength=100
+
+writeallfields=true
+# running on JDBC with readallfields=true causes exceptions
+readallfields=false
+
+histogram.buckets=0
+
+# MongoDB configuration
+mongodb.url=mongodb://localhost:27017
+mongodb.database=ycsb
+mongodb.writeConcern=safe
+
+# Redis configuration
+redis.host=127.0.0.1
+redis.port=6379
+
+# Cassandra configuration (localhost only)
+# Note: need to set up keyspace first, as outlined in:
+# https://github.com/brianfrankcooper/YCSB/wiki/Using-the-Database-Libraries#using-the-cassandra-library
+hosts=127.0.0.1
+
+# MySQL Configuration
+#db.driver=com.mysql.jdbc.Driver
+#db.url=jdbc:mysql://localhost:3306/ycsb
+#db.user=ycsb
+#db.passwd=ycsb
+#jdbc.autocommit=true
+#jdbc.isolation=read_committed
+
+# PostgreSQL Configuration
+db.driver=com.mysql.jdbc.Driver
+db.url=jdbc:postgresql://localhost:5432/ycsb
+db.user=ycsb
+db.passwd=ycsb
+jdbc.autocommit=true
+jdbc.isolation=read_committed
