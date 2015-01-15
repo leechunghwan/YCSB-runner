@@ -191,7 +191,7 @@ for db in config.sections():
     print("Writing output...")
 
     # We name output according to this timestamp
-    datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    datestr = datetime.now().isoformat()
     outdir = os.path.join(".", datestr)
 
     # Copy workload file to output
