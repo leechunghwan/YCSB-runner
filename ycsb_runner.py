@@ -5,6 +5,7 @@ import re
 import sys
 import subprocess
 import configparser
+import csv
 
 # Supported database systems
 SUPPORTED_DBS = [
@@ -60,11 +61,17 @@ for db in config.sections():
         continue
 
     # Load config values
+    # Number of times to run the workload for each MPL for the given adapter
     trials   = config.getint(db, "trials" )
+    # Starting MPL (min number of YCSB threads)
     min_mpl  = config.getint(db, "min_mpl")
+    # Ending MPL (maximum number of YCSB threads)
     max_mpl  = config.getint(db, "max_mpl")
+    # Number by which MPL is increased for each successive trial
     inc_mpl  = config.getint(db, "inc_mpl")
+    # Output format
     output   = config.get(db, "output").lower()
+    # YCSB workload file to be used
     workload = config.get(db, "workload")
 
     # Only CSV output is supported for now
@@ -146,6 +153,12 @@ for db in config.sections():
                 run_stats.append(stats)
             mpl += inc_mpl # increment the MPL by the configured amount
         print("Done!")
-        print("Raw running statistics are below:")
-        for stat in run_stats:
-            print(stat)
+        print("Writing output...")
+
+        if output == "csv":
+            with open('output.csv', 'w') as f:
+                fieldnames = run_stats[0].keys()
+                writer = csv.DictWriter(f, fieldnames)
+                writer.writeheader()
+                for stat in run_stats:
+                    writer.writerow(stat)
