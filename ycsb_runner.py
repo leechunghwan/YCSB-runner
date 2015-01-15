@@ -173,7 +173,7 @@ for db in config.sections():
             # Load the data
             print("Loading YCSB data...")
             subprocess.call(ycsb_load)
-            print("Running with MPL %i" % mpl)
+            print("Running with MPL %i (trial %s)" % (mpl, trial))
             # Build the YCSB run command
             ycsb_run = [
                 "ycsb",
