@@ -193,26 +193,24 @@ for db in config.sections():
 
     # We name output according to this timestamp
     datestr = datetime.now().isoformat()
-    outdir = os.path.join(".", datestr)
+    outdir = os.path.join(".", "output", datestr)
+
+    # Make output dir if not exists
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
 
     # Copy workload file to output
     out_workload_filename = "workload-{}-{}".format(db, datestr)
     copyfile(workload_path, os.path.join(outdir, out_workload_filename))
 
     # Copy ini config if not exists
-    out_ini_filename = "runner-{}.ini".format(db, datestr)
-    out_ini_path = os.path.join(outdir, ini_filename)
+    out_ini_filename = "runner-{}.ini".format(datestr)
+    out_ini_path = os.path.join(outdir, out_ini_filename)
     if not os.path.exists(out_ini_path):
         copyfile(ini_path, out_ini_path)
 
     # Handle each output format
-    if output == "csv":
-
-        # Timestamp dir
-        # Make CSV output dir if not exists
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-
+    if output == "csv": # CSV format
         # Write all collected stats
         # Date and time to be included in output filename
         filename = "output-{}-{}.csv".format(db, datestr)
