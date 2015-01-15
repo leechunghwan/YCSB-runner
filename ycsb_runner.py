@@ -2,10 +2,13 @@
 
 import os
 import re
+import csv
 import sys
 import subprocess
 import configparser
-import csv
+
+from datetime import datetime
+from collections import OrderedDict
 
 # Supported database systems
 SUPPORTED_DBS = [
@@ -26,6 +29,15 @@ CLEAN_COMMANDS = {
     'cassandra' : ["cqlsh", "-k", "usertable", "-e", "TRUNCATE data;"],
 }
 
+# Regex precompilation
+REGEXPS = {
+    'totalcash'    : re.compile(r"TOTAL CASH], ([0-9]+)"),
+    'countcash'    : re.compile(r"COUNTED CASH], ([0-9]+)"),
+    'opcount'      : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
+    'runtime'      : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
+    'throughput'   : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
+}
+
 def usage():
     print("Usage: %s configfile" % sys.argv[0])
     sys.exit(1)
@@ -44,14 +56,17 @@ def getReMatch(regex, string):
     if res != None and len(res.groups()) > 0:
         return float(res.group(1))
     else:
-        return float()
+        return None
 
+# Validate command-line args passed to script
 if len(sys.argv) < 2:
     usage()
 
 # Read and parse the given config file
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
+
+#############################################################################
 
 # For each DBMS in the config, clean the system then run the workload
 for db in config.sections():
@@ -91,15 +106,10 @@ for db in config.sections():
         "1",
     ]
 
-    # Regex precompilation, and Variables to hold stats data
-    regexps = {
-        'totalcash'  : re.compile(r"TOTAL CASH], ([0-9]+)$"),
-        'countcash'  : re.compile(r"COUNTED CASH], ([0-9]+)$"),
-        'opcount'    : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)$"),
-        'runtime'    : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)$"),
-        'throughput' : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)$"),
-    }
+    # To hold stats data dicts
     run_stats = []
+
+#############################################################################
 
     # Run YCSB job trials number of times, and collect average statistics
     for trial in range(trials):
@@ -128,37 +138,60 @@ for db in config.sections():
             ]
             # Store strings from regex matches
             stats = {
-                'totalcash': float(),
-                'countcash': float(),
-                'opcount': float(),
-                'runtime': float(),
-                'throughput': float(),
-                'mpl': int(),
-                'trial': int(),
+                'totalcash'  : float(),
+                'countcash'  : float(),
+                'opcount'    : float(),
+                'runtime'    : float(),
+                'throughput' : float(),
+                'mpl'        : int()  ,
+                'trial'      : int()  ,
+                'score'      : float(),
             }
+            # Use an OrderedDict for consistent CSV output
+            stats = OrderedDict(sorted(stats.items(), key = lambda t: t[0]))
             # Execute YCSB workload
-            proc = subprocess.Popen(ycsb_run, stdout=subprocess.PIPE)
-            for line in proc.stdout:
-                line = line.decode("utf_8")
-                sys.stdout.write(line)
+            with subprocess.Popen(ycsb_run, stdout=subprocess.PIPE) as proc:
+                stdout = proc.stdout.read().decode("utf_8")
+                sys.stdout.write(stdout)
                 # Extract statistics from output
-                # Everybody stand back! I know regular expressions!
-                for stat, regex in regexps.items():
-                    m = getReMatch(regex, line)
-                    if m > 0:
+                # /Everybody stand back/ I know regular expressions!
+                #
+                # NOTE in the case that validation succeeds, YCSB+T doesn't
+                #   output these stats, so total cash, counted cash, and op
+                #   count will all be zero
+                for stat, regex in REGEXPS.items():
+                    m = getReMatch(regex, stdout)
+                    if m is not None:
                         stats[stat] = m
+
             if stats['runtime'] > 0:
                 stats['mpl'] = mpl
                 stats['trial'] = trial
+                # If we have the right values, calculate the simple anomaly
+                #   score here, otherwise leave as 0
+                if (stats['opcount'] != 0 and stats['totalcash'] != 0 and
+                      stats['countcash'] != 0):
+                    stats['score'] = abs(stats['totalcash'] -
+                      stats['countcash']) / stats['opcount']
                 run_stats.append(stats)
             mpl += inc_mpl # increment the MPL by the configured amount
-        print("Done!")
-        print("Writing output...")
 
-        if output == "csv":
-            with open('output.csv', 'w') as f:
-                fieldnames = run_stats[0].keys()
-                writer = csv.DictWriter(f, fieldnames)
-                writer.writeheader()
-                for stat in run_stats:
-                    writer.writerow(stat)
+        print("Done!")
+
+#############################################################################
+
+    print("Writing output...")
+
+    if output == "csv":
+        # Date and time to be included in output filename
+        datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        with open("output-{}-{}.csv".format(db, datestr), 'w') as f:
+            # If this doesn't hold then something is very wrong (i.e. YCSB
+            # isn't running properly, or there's some major bug in this runner
+            # script)
+            assert len(run_stats) > 1
+            fieldnames = run_stats[0].keys()
+            writer = csv.DictWriter(f, fieldnames)
+            writer.writeheader()
+            for stat in run_stats:
+                writer.writerow(stat)
