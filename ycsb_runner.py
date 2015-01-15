@@ -22,7 +22,7 @@ SUPPORTED_DBS = [
     'jdbc',
     'mongodb',
     'redis',
-    'cassandra',
+    'cassandra-10',
 ]
 
 # Commands for truncating each DBMS
@@ -63,7 +63,7 @@ CLEAN_COMMANDS = {
         "1",
         "FLUSHALL"
     ],
-    'cassandra': [
+    'cassandra-10': [
         "cqlsh",
         "-k",
         "usertable",
