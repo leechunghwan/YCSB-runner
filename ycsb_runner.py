@@ -7,7 +7,9 @@ import sys
 import subprocess
 import configparser
 
-from datetime import datetime
+from datetime    import datetime
+from itertools   import count
+from collections import defaultdict
 from collections import OrderedDict
 
 # Supported database systems
@@ -115,8 +117,9 @@ for db in config.sections():
     for trial in range(trials):
         print("Starting trial %i" % trial)
         # Track the MPL
-        mpl = min_mpl
-        while mpl + inc_mpl <= max_mpl:
+        for mpl in count(start = min_mpl, step = inc_mpl):
+            if mpl > max_mpl:
+                break
             # Clean the database
             print("Cleaning the database...")
             db = db.lower()
@@ -138,17 +141,15 @@ for db in config.sections():
             ]
             # Store strings from regex matches
             stats = {
-                'totalcash'  : float(),
-                'countcash'  : float(),
-                'opcount'    : float(),
-                'runtime'    : float(),
-                'throughput' : float(),
-                'mpl'        : int()  ,
-                'trial'      : int()  ,
-                'score'      : float(),
+                'totalcash'  : float(), # From YCSB output
+                'countcash'  : float(), # From YCSB output
+                'opcount'    : float(), # From YCSB output
+                'runtime'    : float(), # From YCSB output
+                'throughput' : float(), # From YCSB output
+                'mpl'        : int()  , # Multiprogramming level (# threads)
+                'trial'      : int()  , # Trial number
+                'score'      : float(), # Simple anomaly score (SAS)
             }
-            # Use an OrderedDict for consistent CSV output
-            stats = OrderedDict(sorted(stats.items(), key = lambda t: t[0]))
             # Execute YCSB workload
             with subprocess.Popen(ycsb_run, stdout=subprocess.PIPE) as proc:
                 stdout = proc.stdout.read().decode("utf_8")
@@ -174,24 +175,52 @@ for db in config.sections():
                     stats['score'] = abs(stats['totalcash'] -
                       stats['countcash']) / stats['opcount']
                 run_stats.append(stats)
-            mpl += inc_mpl # increment the MPL by the configured amount
 
-        print("Done!")
+        print("Completed trial number %s" % (trial))
 
 #############################################################################
 
     print("Writing output...")
 
+    # CSV output
     if output == "csv":
+        # Make output dir if not exists
+        CSV_OUT_DIR = "csv"
+        if not os.path.exists(CSV_OUT_DIR):
+            os.makedirs(CSV_OUT_DIR)
+
+        # Write all collected stats
         # Date and time to be included in output filename
         datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        with open("output-{}-{}.csv".format(db, datestr), 'w') as f:
+        filename = "output-{}-{}.csv".format(db, datestr)
+        filepath = os.path.join(".", CSV_OUT_DIR, filename)
+        with open(filepath, 'w') as f:
             # If this doesn't hold then something is very wrong (i.e. YCSB
             # isn't running properly, or there's some major bug in this runner
             # script)
             assert len(run_stats) > 1
-            fieldnames = run_stats[0].keys()
+            fieldnames = sorted(run_stats[0].keys())
             writer = csv.DictWriter(f, fieldnames)
             writer.writeheader()
             for stat in run_stats:
                 writer.writerow(stat)
+
+        # Calculate and write average simple anomaly scores for each MPL
+        filename = "averages-{}-{}.csv".format(db, datestr)
+        filepath = os.path.join(".", CSV_OUT_DIR, filename)
+        with open(filepath, 'w') as f:
+            fieldnames = ['db', 'mpl', 'avg_score', 'num_trials']
+            writer = csv.DictWriter(f, fieldnames)
+            writer.writeheader()
+            scores = defaultdict(float)
+            # Map MPL to sum of simple anomaly scores
+            for stat in run_stats:
+                scores[stat['mpl']] += stat['score']
+            # Finally, write CSV rows, sorted by MPL
+            for mpl, total in sorted(scores.items()):
+                writer.writerow({
+                    'db'        : db,
+                    'mpl'       : mpl,
+                    'avg_score' : total / trials, # average for this MPL
+                    'num_trials': trials,
+                })
