@@ -12,6 +12,9 @@ from itertools   import count
 from collections import defaultdict
 from collections import OrderedDict
 
+# Output directories
+CSV_OUT_DIR = "output/csv"
+
 # Supported database systems
 SUPPORTED_DBS = [
     'jdbc',
@@ -186,16 +189,17 @@ for db in config.sections():
 
     # CSV output
     if output == "csv":
-        # Make output dir if not exists
-        CSV_OUT_DIR = "csv"
-        if not os.path.exists(CSV_OUT_DIR):
-            os.makedirs(CSV_OUT_DIR)
+        # Timestamp dir
+        datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        # Make CSV output dir if not exists
+        outdir = os.path.join(".", CSV_OUT_DIR, datestr)
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
 
         # Write all collected stats
         # Date and time to be included in output filename
-        datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         filename = "output-{}-{}.csv".format(db, datestr)
-        filepath = os.path.join(".", CSV_OUT_DIR, filename)
+        filepath = os.path.join(outdir, filename)
         with open(filepath, 'w') as f:
             # If this doesn't hold then something is very wrong (i.e. YCSB
             # isn't running properly, or there's some major bug in this runner
@@ -209,7 +213,7 @@ for db in config.sections():
 
         # Calculate and write average simple anomaly scores for each MPL
         filename = "averages-{}-{}.csv".format(db, datestr)
-        filepath = os.path.join(".", CSV_OUT_DIR, filename)
+        filepath = os.path.join(outdir, filename)
         with open(filepath, 'w') as f:
             fieldnames = ['db', 'mpl', 'avg_score', 'num_trials']
             writer = csv.DictWriter(f, fieldnames)
