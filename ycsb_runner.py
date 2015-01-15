@@ -162,18 +162,23 @@ for db in config.sections():
     # Run YCSB job trials number of times, and collect average statistics
     for trial in range(trials):
         print("Starting trial %i" % trial)
+
         # Track the MPL
         for mpl in count(start = min_mpl, step = inc_mpl):
             if mpl > max_mpl:
                 break
+
             # Clean the database
             print("Cleaning the database...")
             db = db.lower()
             clean(db)
+
             # Load the data
             print("Loading YCSB data...")
             subprocess.call(ycsb_load)
+
             print("Running with MPL %i (trial %s)" % (mpl, trial))
+
             # Build the YCSB run command
             ycsb_run = [
                 "ycsb",
@@ -185,7 +190,8 @@ for db in config.sections():
                 "-threads",
                 str(mpl),
             ]
-            # Store strings from regex matches
+
+            # Store strings from regex matches in stats dict
             stats = {
                 'totalcash'  : float(), # From YCSB output
                 'countcash'  : float(), # From YCSB output
@@ -196,6 +202,7 @@ for db in config.sections():
                 'trial'      : int()  , # Trial number
                 'score'      : float(), # Simple anomaly score (SAS)
             }
+
             # Execute YCSB workload
             with subprocess.Popen(ycsb_run, stdout=subprocess.PIPE) as proc:
                 stdout = proc.stdout.read().decode("utf_8")
@@ -211,11 +218,12 @@ for db in config.sections():
                     if m is not None:
                         stats[stat] = m
 
+            # If we have some stats data, let's update the stats dict
             if stats['runtime'] > 0:
                 stats['mpl'] = mpl
                 stats['trial'] = trial
                 # If we have the right values, calculate the simple anomaly
-                #   score here, otherwise leave as 0
+                #   score here, otherwise leave as 0 (assume validation passed)
                 if (stats['opcount'] != 0 and stats['totalcash'] != 0 and
                       stats['countcash'] != 0):
                     stats['score'] = abs(stats['totalcash'] -
@@ -223,6 +231,19 @@ for db in config.sections():
                 run_stats.append(stats)
 
         print("Completed trial number %s" % (trial))
+
+#############################################################################
+
+    print("Calculating averages...")
+
+    averagescores = defaultdict(float)
+
+    # Map MPL to sum of simple anomaly scores
+    for stat in run_stats:
+        averagescores[stat['mpl']] += stat['score']
+    # Calculate averages
+    for mpl, total in averagescores:
+        averagescores[mpl] = total / trials
 
 #############################################################################
 
@@ -270,16 +291,13 @@ for db in config.sections():
             fieldnames = ['db', 'mpl', 'avg_score', 'num_trials']
             writer = csv.DictWriter(f, fieldnames)
             writer.writeheader()
-            scores = defaultdict(float)
             # Map MPL to sum of simple anomaly scores
-            for stat in run_stats:
-                scores[stat['mpl']] += stat['score']
             # Finally, write CSV rows, sorted by MPL
-            for mpl, total in sorted(scores.items()):
+            for mpl, avg in sorted(scores.items()):
                 writer.writerow({
                     'db'        : db,
                     'mpl'       : mpl,
-                    'avg_score' : total / trials, # average for this MPL
+                    'avg_score' : avg, # average for this MPL
                     'num_trials': trials,
                 })
 
