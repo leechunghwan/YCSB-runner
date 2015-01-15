@@ -71,8 +71,9 @@ if len(sys.argv) < 2:
     usage()
 
 # Read and parse the given config file
+ini_path = sys.argv[1]
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read(ini_path)
 
 #############################################################################
 
@@ -195,8 +196,14 @@ for db in config.sections():
     outdir = os.path.join(".", datestr)
 
     # Copy workload file to output
-    workload_filename = "workload-{}-{}".format(db, datestr)
-    copyfile(workload_path, os.path.join(outdir, workload_filename))
+    out_workload_filename = "workload-{}-{}".format(db, datestr)
+    copyfile(workload_path, os.path.join(outdir, out_workload_filename))
+
+    # Copy ini config if not exists
+    out_ini_filename = "runner-{}.ini".format(db, datestr)
+    out_ini_path = os.path.join(outdir, ini_filename)
+    if not os.path.exists(out_ini_path):
+        copyfile(ini_path, out_ini_path)
 
     # Handle each output format
     if output == "csv":
