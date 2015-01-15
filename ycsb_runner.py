@@ -12,6 +12,9 @@ from itertools   import count
 from collections import defaultdict
 from collections import OrderedDict
 
+# Supported output formats
+SUPPORTED_OUTPUTS = ['csv']
+
 # Output directories
 CSV_OUT_DIR = "output/csv"
 
@@ -97,8 +100,9 @@ for db in config.sections():
     workload = config.get(db, "workload")
 
     # Only CSV output is supported for now
-    if output != "csv":
-        print("Output type %s not supported. Only CSV is supported." % output)
+    if output not in SUPPORTED_OUTPUTS:
+        print("Output type %s not supported. Only (%s) are supported." %
+                (output, ','.join(SUPPORTED_OUTPUTS)))
         sys.exit(1)
 
     # Build the YCSB load command
@@ -187,12 +191,15 @@ for db in config.sections():
 
     print("Writing output...")
 
-    # CSV output
+    # We name output according to this timestamp
+    datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+
+    # Handle each output format
     if output == "csv":
-        # Timestamp dir
-        datestr = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        # Make CSV output dir if not exists
         outdir = os.path.join(".", CSV_OUT_DIR, datestr)
+
+        # Timestamp dir
+        # Make CSV output dir if not exists
         if not os.path.exists(outdir):
             os.makedirs(outdir)
 
@@ -230,3 +237,9 @@ for db in config.sections():
                     'avg_score' : total / trials, # average for this MPL
                     'num_trials': trials,
                 })
+
+    # Oh dear, we have an unsupported output type
+    # This `else` should actually never be reached, but it's here for
+    #   completeness' sake anyway...
+    else:
+        raise NotImplementedError("Output type %s is not supported." % output)
