@@ -12,6 +12,7 @@ from datetime    import datetime
 from itertools   import count
 from collections import defaultdict
 from collections import OrderedDict
+from csvplot     import plot
 
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
@@ -227,7 +228,7 @@ for db in config.sections():
 
     # We name output according to this timestamp
     datestr = datetime.now().isoformat()
-    outdir = os.path.join(".", "output", datestr)
+    outdir = os.path.join(".", "output", datestr + "-{}".format(db))
 
     print("Writing output to", outdir)
 
