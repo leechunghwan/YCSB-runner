@@ -189,11 +189,11 @@ for db in config.sections():
 
 #############################################################################
 
-    print("Writing output...")
-
     # We name output according to this timestamp
     datestr = datetime.now().isoformat()
     outdir = os.path.join(".", "output", datestr)
+
+    print("Writing output to", outdir)
 
     # Make output dir if not exists
     if not os.path.exists(outdir):
