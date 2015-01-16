@@ -12,7 +12,7 @@ from datetime    import datetime
 from itertools   import count
 from collections import defaultdict
 from collections import OrderedDict
-from csvplot     import plot
+from plots       import scatter
 
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
@@ -134,6 +134,8 @@ for db in config.sections():
     output   = config.get(db, "output").lower()
     # YCSB workload file to be used
     workload = config.get(db, "workload")
+    # Whether or not plots should be generated
+    output_plots = config.getboolean(db, "output_plots")
     workload_path = os.path.join(os.getcwd(), workload)
 
     # Only CSV output is supported for now
@@ -305,3 +307,34 @@ for db in config.sections():
     #   completeness' sake anyway...
     else:
         raise NotImplementedError("Output type %s is not supported." % output)
+
+#############################################################################
+
+    # Make graphs if set to do so in config
+    if output_plots:
+        print("Plotting graphs...")
+
+        # Plot output filename and filepath (average scores)
+        print("Plotting averages...")
+        filename = "plot-averages-{}-{}.pdf".format(db, datestr)
+        filepath = os.path.join(outdir, filename)
+
+        # Build series data
+        x = list(scores.keys())
+        y = [scores[x] for x in x]
+        series = [{
+            'x': x,
+            'y': y,
+            'series': "{}".format(db)
+        }]
+
+        # Make scatterplot with simple linear regression line
+        scatter(
+            series,
+            filepath,
+            xaxis="MPL",
+            yaxis="Average Simple Anomaly Score",
+            regression=True,
+        )
+
+
