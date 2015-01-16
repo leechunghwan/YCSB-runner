@@ -236,14 +236,13 @@ for db in config.sections():
 
     print("Calculating averages...")
 
-    averagescores = defaultdict(float)
-
     # Map MPL to sum of simple anomaly scores
+    scores = defaultdict(float)
     for stat in run_stats:
-        averagescores[stat['mpl']] += stat['score']
+        scores[stat['mpl']] += stat['score']
     # Calculate averages
-    for mpl, total in averagescores:
-        averagescores[mpl] = total / trials
+    for mpl, total in scores.items():
+        scores[mpl] = total / trials
 
 #############################################################################
 
@@ -277,7 +276,7 @@ for db in config.sections():
             # If this doesn't hold then something is very wrong (i.e. YCSB
             # isn't running properly, or there's some major bug in this runner
             # script)
-            assert len(run_stats) > 1
+            assert len(run_stats) > 0
             fieldnames = sorted(run_stats[0].keys())
             writer = csv.DictWriter(f, fieldnames)
             writer.writeheader()
