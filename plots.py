@@ -29,9 +29,12 @@ def series(series, outputfile, xaxis=None, yaxis=None):
 #   xaxis and yaxis: the x and y axis labels
 #   regression: boolean indicating whether to plot a linear regression line
 def scatter(series, outputfile, xaxis=None, yaxis=None, regression=True):
+    # Track max point
+    maxpoint = 0
     # Create all plots, add to plots list
     plots = []
     for s in series:
+        maxpoint = max(max(s['y']), maxpoint)
         plots += [plt.scatter(s['x'], s['y'], label=s['series'], marker="o")]
         # Calculate linear regression if needed
         if regression:
@@ -45,5 +48,9 @@ def scatter(series, outputfile, xaxis=None, yaxis=None, regression=True):
         plt.xlabel(xaxis)
     if yaxis is not None:
         plt.ylabel(yaxis)
+    # Set axis limits
+    axes = plt.axes()
+    axes.set_ylim(ymin=-0.0001, ymax=maxpoint * 1.05)
+    axes.set_xlim(xmin=0)
     plt.savefig(outputfile)
 

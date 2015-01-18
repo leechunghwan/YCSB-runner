@@ -12,7 +12,7 @@ from datetime    import datetime
 from itertools   import count
 from collections import defaultdict
 from collections import OrderedDict
-from plots       import scatter
+from plots       import scatter, series
 
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
@@ -322,7 +322,7 @@ for db in config.sections():
         # Build series data
         x = list(scores.keys())
         y = [scores[x] for x in x]
-        series = [{
+        sdata = [{
             'x': x,
             'y': y,
             'series': "{}".format(db)
@@ -330,11 +330,10 @@ for db in config.sections():
 
         # Make scatterplot with simple linear regression line
         scatter(
-            series,
+            sdata,
             filepath,
             xaxis="MPL",
             yaxis="Average Simple Anomaly Score",
-            regression=True,
         )
 
 
