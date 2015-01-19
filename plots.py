@@ -50,7 +50,7 @@ def scatter(series, outputfile, xaxis=None, yaxis=None, regression=True):
         plt.ylabel(yaxis)
     # Set axis limits
     axes = plt.axes()
-    axes.set_ylim(ymin=-0.0001, ymax=maxpoint * 1.05)
+    axes.set_ylim(ymin=0., ymax=maxpoint * 1.05)
     axes.set_xlim(xmin=0)
     plt.savefig(outputfile)
 
