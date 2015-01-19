@@ -159,10 +159,13 @@ for section in config.sections():
         if label is not None:
             label, = label.groups(0)
             db = RE_DBNAME_LABEL.sub("", db)
+        else:
+            label = ""
 
         # Validate DBMS names
         if db.lower() not in SUPPORTED_DBS:
-            print("Invalid database found: %s. Skipping..." % db)
+            print("Invalid database found: %s. Only (%s) are supported. Skipping..." %
+                    (db, ','.join(SUPPORTED_DBS)))
             continue
 
         # Build the YCSB load command
@@ -200,7 +203,7 @@ for section in config.sections():
                 print("Loading YCSB data...")
                 subprocess.call(ycsb_load)
 
-                print("Running with MPL %i (trial %s)" % (mpl, trial))
+                print("Running on %s with MPL %i (trial %s)" % (db+label, mpl, trial))
 
                 # Build the YCSB run command
                 ycsb_run = [
@@ -274,7 +277,7 @@ for section in config.sections():
         outdir = os.path.join(".", "output", datestr + "-{}".format(db))
 
         # Add the DB label to the output dir for reference (if label exists)
-        if label is not None:
+        if label != "":
             outdir += label
 
         print("Writing output to", outdir)
