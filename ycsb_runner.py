@@ -25,6 +25,16 @@ SUPPORTED_DBS = [
     'cassandra-10',
 ]
 
+# Matches labels (bits after : in dbname config sections)
+# Database names may be labelled for reference, and so that the same DBMS can
+# be configured twice in two different sections. Labels are ignored by the
+# runner script under all circumstances; they are merely for differentiation
+# and reference purposes.
+# labels may look like this:
+#     [foodb:labelhere_blah]
+# where after : is the label, which may contain A-Z, a-z, 0-9, _, and -
+RE_DBNAME_LABEL = re.compile(r"(:[A-Za-z0-9_-]+$)")
+
 # Commands for truncating each DBMS
 # NOTE: PostgreSQL requires the database user password to be specified in a
 # .pgpass file in the user's home directory
@@ -109,8 +119,7 @@ if len(sys.argv) < 2:
 
 # Read and parse the given config file
 ini_path = sys.argv[1]
-# We set strict=False to allow duplicate sections
-config = configparser.ConfigParser(strict=False)
+config = configparser.ConfigParser()
 config.read(ini_path)
 
 #############################################################################
@@ -134,6 +143,7 @@ for section in config.sections():
     output_plots  = config.getboolean(section, "output_plots")
     workload_path = os.path.join(os.getcwd(), workload)
 
+    # Split out DB names from section headings with multiple DB names
     section = [s.strip() for s in section.split(',')]
 
     # Only CSV output is supported for now
@@ -144,6 +154,12 @@ for section in config.sections():
         sys.exit(1)
 
     for db in section:
+        # Get the DB name label and save it for later, if it exists
+        label = RE_DBNAME_LABEL.search(db)
+        if label is not None:
+            label, = label.groups(0)
+            db = RE_DBNAME_LABEL.sub("", db)
+
         # Validate DBMS names
         if db.lower() not in SUPPORTED_DBS:
             print("Invalid database found: %s. Skipping..." % db)
@@ -256,6 +272,10 @@ for section in config.sections():
         # We name output according to this timestamp
         datestr = datetime.now().isoformat()
         outdir = os.path.join(".", "output", datestr + "-{}".format(db))
+
+        # Add the DB label to the output dir for reference (if label exists)
+        if label is not None:
+            outdir += label
 
         print("Writing output to", outdir)
 
