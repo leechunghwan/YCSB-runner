@@ -21,6 +21,8 @@ def series(series, outputfile, xaxis=None, yaxis=None):
     if yaxis is not None:
         plt.ylabel(yaxis)
     plt.savefig(outputfile)
+    # clear the figure so the next one starts out new
+    plt.clf()
 
 # Plot given X and Y as scatterplots, saving output to given file path
 #   series: list of dicts in the form
@@ -53,4 +55,5 @@ def scatter(series, outputfile, xaxis=None, yaxis=None, regression=True):
     axes.set_ylim(ymin=0., ymax=maxpoint * 1.05)
     axes.set_xlim(xmin=0)
     plt.savefig(outputfile)
-
+    # clear the figure so the next one starts out new
+    plt.clf()
