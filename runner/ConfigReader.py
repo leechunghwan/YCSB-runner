@@ -1,4 +1,7 @@
+import re
 import configparser
+
+from .DbSystem import DbSystem
 
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
@@ -87,7 +90,7 @@ class RunnerConfiguration:
     # output        =   output format
     # workload      =   workload file path
     # output_plots  =   whether to generate plots
-    OPTION_KEYS = [
+    OPTION_KEYS = {
         'trials'      : int(),
         'min_mpl'     : int(),
         'max_mpl'     : int(),
@@ -95,7 +98,7 @@ class RunnerConfiguration:
         'output'      : lambda s: str(s).lower(),
         'workload'    : str(),
         'output_plots': bool(),
-    ]
+    }
 
     def __init__(self, configfile):
         """__init__
@@ -106,7 +109,7 @@ class RunnerConfiguration:
         self.config = configparser.ConfigParser()
         self.config.read(configfile)
         # Now, process the config further, extracting DBMS names, options
-        self.dbs = __process_sections()
+        self.dbs = self.__process_sections()
 
     def __process_sections(self):
         """__process_sections
@@ -114,8 +117,9 @@ class RunnerConfiguration:
         populating this object with corresponding DbSystem instances"""
         dbs = []
         for section in self.config.sections():
-            config = __process_config_keys(section)
-            dbs += __process_dbs(section, config)
+            config = self.__process_config_keys(section)
+            dbs += self.__process_dbs(section, config)
+        return dbs
 
     def __process_config_keys(self, section):
         """__process_config_keys
@@ -124,7 +128,7 @@ class RunnerConfiguration:
         k=v options should be processed
         """
         config = {}
-        for k, t in OPTION_KEYS.items():
+        for k, t in self.OPTION_KEYS.items():
             # Handle integer-valued keys
             if type(t) is type(int()):
                 config[k] = self.config.getint(section, k)
@@ -158,4 +162,5 @@ class RunnerConfiguration:
                         (db, ','.join(SUPPORTED_DBS)))
                 continue
             # Build the DbSystem object
-            db_instances += DbSystem(db, label=label, **config)
+            db_instances.append(DbSystem(db, config, label=label))
+        return db_instances
