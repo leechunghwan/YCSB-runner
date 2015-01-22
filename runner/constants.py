@@ -1,3 +1,5 @@
+import re
+
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
 

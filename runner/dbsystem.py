@@ -20,14 +20,14 @@ class DbSystem:
         if name in self.config:
             return self.config[name]
         else:
-            raise AttributeError("Attribute {} not found".format(name))
+            return super(DbSystem, self).__getattr__(name)
 
     # Sets attributes in the configuration dict
     def __setattr(self, name, value):
         if name in self.config and type(value) == type(self.config[name]):
             self.config[name] = value
         else:
-            object.__setattr__(self, name, value)
+            super(DbSystem, self).__setattr__(name, value)
 
     def __validate_config(self, config):
         """__validate_config
