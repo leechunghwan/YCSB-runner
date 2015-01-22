@@ -32,3 +32,17 @@ class DbSystem:
             if k not in self.config:
                 raise AttributeError("Missing required configuration parameter: %s" % k)
         return true # presumably nothing was raised and all is well
+
+    def build_ycsb_load(self):
+        """build_ycsb_load
+        Builds the YCSB load command as a list that may be passed to Popen
+        """
+        # TODO
+        raise NotImplementedError()
+
+    def build_ycsb_run(self):
+        """build_ycsb_run
+        Builds the YCSB run command as a list that may be passed to Popen
+        """
+        # TODO
+        raise NotImplementedError()
