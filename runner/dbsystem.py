@@ -1,3 +1,5 @@
+from .constants import *
+
 class DbSystem:
     # A list of required configuration fields
     REQUIRED_FIELDS = [
@@ -5,8 +7,10 @@ class DbSystem:
         'inc_mpl', 'workload'
     ]
 
-    def __init__(self, dbname, config, label=""):
+    def __init__(self, dbname, config, label="", tablename=DEFAULT_TABLENAME):
+        self.dbname = dbname
         self.label = label
+        self.tablename = tablename
         self.config = config
 
     # Gets attributes from the configuration dict
@@ -40,18 +44,40 @@ class DbSystem:
                 raise AttributeError("Missing required configuration parameter: %s" % k)
         return true # presumably nothing was raised and all is well
 
-    def build_ycsb_load(self):
+    def __tablenameify(self, lst):
+        """__tablenameify
+
+        Replaces {TABLENAME} with the configured name of the YCSB+T table in
+        the given list of strings
+
+        :param lst: List of strings within which {TABLENAME} should be subbed
+        """
+        return [s.replace("{TABLENAME}", self.tablename) for s in lst]
+
+    def construct_ycsb_load(self):
         """build_ycsb_load
 
-        Builds the YCSB load command as a list that may be passed to Popen
+        Creates the YCSB load command as a list that may be passed to Popen
         """
         # TODO
         raise NotImplementedError()
 
-    def build_ycsb_run(self):
+    def construct_ycsb_run(self):
         """build_ycsb_run
 
-        Builds the YCSB run command as a list that may be passed to Popen
+        Creates the YCSB run command as a list that may be passed to Popen
         """
         # TODO
         raise NotImplementedError()
+
+    def clean(self):
+        """clean
+
+        Cleans all YCSB+T data from the database by calling the corresponding
+        clean command (configured in constants.py)
+        """
+        if self.dbname.lower() == "jdbc":
+            subprocess.call(self.__tablenameify(CLEAN_COMMANDS['mysql']))
+            subprocess.call(self.__tablenameify(CLEAN_COMMANDS['psql']))
+        else:
+            subprocess.call(self.__tablenameify(CLEAN_COMMANDS[self.dbname.lower()]))

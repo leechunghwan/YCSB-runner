@@ -71,6 +71,14 @@ class RunnerConfig:
         return config
 
     def __process_dbs(self, section, config):
+        """__process_dbs
+
+        Creates DbSystem instances with their corresponding configurations for
+        each DBMS in the runner config
+
+        :param section:
+        :param config:
+        """
         # Section headings may contain multiple DB names, CSV format
         section = [s.strip() for s in section.split(',')]
         db_instances = []
@@ -87,6 +95,12 @@ class RunnerConfig:
                 print("Invalid database found: %s. Only (%s) are supported. Skipping..." %
                         (db, ','.join(SUPPORTED_DBS)))
                 continue
+
+            # Get the tablename, or use default
+            # TODO: Maybe grab this from the workload config file instead of
+            # the runner config?
+            tablename = self.config.get("tablename", DEFAULT_TABLENAME)
             # Build the DbSystem object
-            db_instances.append(DbSystem(db, config, label=label))
+            db_instances.append(DbSystem(db, config, label=label,
+                tablename=tablename))
         return db_instances

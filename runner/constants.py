@@ -9,6 +9,9 @@ SUPPORTED_DBS = [
     'cassandra-10',
 ]
 
+# The default table name to use if not specified in runner config file
+DEFAULT_TABLENAME = "usertable"
+
 # Matches labels (bits after : in dbname config sections)
 # Database names may be labelled for reference, and so that the same DBMS can
 # be configured twice in two different sections. Labels are ignored by the
@@ -29,7 +32,7 @@ CLEAN_COMMANDS = {
         "ycsb",
         "-pycsb",
         "-e",
-        "TRUNCATE TABLE usertable;",
+        "TRUNCATE TABLE {TABLENAME};",
         "ycsb"
     ],
     'psql': [
@@ -41,7 +44,7 @@ CLEAN_COMMANDS = {
         "-U",
         "ycsb",
         "-c",
-        "TRUNCATE TABLE usertable;"
+        "TRUNCATE TABLE {TABLENAME};"
     ],
     'mongodb': [
         "mongo",
@@ -60,7 +63,7 @@ CLEAN_COMMANDS = {
     'cassandra-10': [
         "cqlsh",
         "-k",
-        "usertable",
+        "{TABLENAME}",
         "-e",
         "TRUNCATE data;"
     ],
