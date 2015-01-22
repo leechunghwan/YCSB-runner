@@ -13,11 +13,6 @@ class Statistics:
         'trial'      : int  , # Trial number
     }
 
-    # Special attributes that are mapped to methods of the same name
-    # Note, these methods must be able to accept 0 arguments
-    __FUNC_ATTRS = [
-        'score',
-    ]
     # The prefix for said methods, to prevent name clashes
     __FUNC_ATTRS_PREFIX = "calc_"
 
@@ -39,9 +34,6 @@ class Statistics:
     def __getattr__(self, name):
         if name in self.__stats:
             return self.__stats[name]
-        # Support calling .score to get simple anomaly score
-        elif name in self.__FUNC_ATTRS:
-            return getattr(self, self.__FUNC_ATTRS_PREFIX + name)()
         raise AttributeError
 
     # Store stats attributes in __stats dict
@@ -61,7 +53,8 @@ class Statistics:
             data[fa] = getattr(self, fa)
         return str(data)
 
-    def calc_score(self):
+    @property
+    def anomaly_score(self):
         """score
         Calculates the closed economy workload Simple Anomaly Score
         Returns None if S.A.S. can't be calculated from current data
@@ -80,8 +73,6 @@ class StatisticsSet:
     """
     # The type of data we're storing here
     STATS_TYPE = Statistics
-    # The prefix for attributes storing average stats
-    AVERAGE_ATTR_PREFIX = "avg_"
 
     def __init__(self, *args):
         """__init__
@@ -89,13 +80,19 @@ class StatisticsSet:
 
         :param *args: Statistics instances to add to this StatisticsSet
         """
+        # Mappings of magic prefixes to aggregation methods
+        self.__MAGIC_ATTR_PREFIX_MAP = {
+            "avg_": self.average,
+        }
         self.__stats = []
         self.addstats(*args)
 
     def __getattr__(self, name):
-        if name.startswith(self.AVERAGE_ATTR_PREFIX):
-            name = re.sub(r'^' + self.AVERAGE_ATTR_PREFIX, "", name)
-            return self.average(name)
+        # Handle magic property prefixes
+        for prefix, f in self.__MAGIC_ATTR_PREFIX_MAP.items():
+            if name.startswith(prefix):
+                name = re.sub(r'^' + prefix, "", name)
+                return f(name)
         raise AttributeError
 
 
@@ -122,12 +119,30 @@ class StatisticsSet:
 
     def average(self, field):
         """average
-        Calculates the average of the given field from all stats in this set
+        Average of values stored in given field
 
         :param field: Field to average
         """
         stats = self.getvalues(field)
         return sum(stats) / len(stats)
+
+    def sum(self, field):
+        """sum
+
+        Sum of values stored in given field
+        :param field: Field to be summed
+        """
+        stats = self.getvalues(field)
+        return sum(stats)
+
+    def count(self, field):
+        """count
+
+        Number of values stored in given field
+        :param field: Field to count
+        """
+        stats = self.getvalues(field)
+        return len(stats)
 
     def getvalues(self, field):
         """getvalues
