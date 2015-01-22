@@ -23,8 +23,15 @@ class DbSystem:
         else:
             object.__setattr__(self, name, value)
 
-    # Ensures self.config contains all required configuration keys
     def __validate_config(self, config):
+        """__validate_config
+        Ensure the given config dict contains all required keys, and no
+        extraneous keys
+
+        Raises an AttributeError for invalid or missing keys
+
+        :param config: dict of configuration key -> value mappings
+        """
         for k in config:
             if k not in REQUIRED_FIELDS:
                 raise AttributeError("Key %s is not a configuration parameter" % k)
@@ -35,6 +42,7 @@ class DbSystem:
 
     def build_ycsb_load(self):
         """build_ycsb_load
+
         Builds the YCSB load command as a list that may be passed to Popen
         """
         # TODO
@@ -42,6 +50,7 @@ class DbSystem:
 
     def build_ycsb_run(self):
         """build_ycsb_run
+
         Builds the YCSB run command as a list that may be passed to Popen
         """
         # TODO
