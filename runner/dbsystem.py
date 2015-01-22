@@ -1,3 +1,5 @@
+import os
+
 from .constants import *
 
 class DbSystem:
@@ -54,21 +56,40 @@ class DbSystem:
         """
         return [s.replace("{TABLENAME}", self.tablename) for s in lst]
 
+    def workload_path(self):
+        return os.path.join(os.getcwd(), self.workload),
+
     def construct_ycsb_load(self):
         """build_ycsb_load
 
         Creates the YCSB load command as a list that may be passed to Popen
         """
-        # TODO
-        raise NotImplementedError()
+        return [
+            "ycsb",
+            "load",
+            self.dbname,
+            "-P",
+            self.workload_path(),
+            "-s",
+            "-threads",
+            "1",
+        ]
 
-    def construct_ycsb_run(self):
+    def construct_ycsb_run(self, mpl):
         """build_ycsb_run
 
         Creates the YCSB run command as a list that may be passed to Popen
         """
-        # TODO
-        raise NotImplementedError()
+        return [
+            "ycsb",
+            "run",
+            self.dbname,
+            "-P",
+            self.workload_path(),
+            "-s",
+            "-threads",
+            str(mpl),
+        ]
 
     def clean(self):
         """clean
