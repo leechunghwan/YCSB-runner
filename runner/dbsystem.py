@@ -4,7 +4,7 @@ from .constants import *
 
 class DbSystem:
     # A list of required configuration fields
-    REQUIRED_FIELDS = [
+    __REQUIRED_FIELDS = [
         'trials' , 'min_mpl' , 'max_mpl',
         'inc_mpl', 'workload'
     ]
@@ -32,22 +32,20 @@ class DbSystem:
         """__validate_config
         Ensure the given config dict contains all required keys, and no
         extraneous keys
-
         Raises an AttributeError for invalid or missing keys
 
         :param config: dict of configuration key -> value mappings
         """
         for k in config:
-            if k not in REQUIRED_FIELDS:
+            if k not in self.__REQUIRED_FIELDS:
                 raise AttributeError("Key %s is not a configuration parameter" % k)
-        for k in REQUIRED_FIELDS:
+        for k in self.__REQUIRED_FIELDS:
             if k not in self.config:
                 raise AttributeError("Missing required configuration parameter: %s" % k)
         return true # presumably nothing was raised and all is well
 
     def __tablenameify(self, lst):
         """__tablenameify
-
         Replaces {TABLENAME} with the configured name of the YCSB+T table in
         the given list of strings
 
@@ -60,7 +58,6 @@ class DbSystem:
 
     def construct_ycsb_load(self):
         """build_ycsb_load
-
         Creates the YCSB load command as a list that may be passed to Popen
         """
         return [
@@ -76,7 +73,6 @@ class DbSystem:
 
     def construct_ycsb_run(self, mpl):
         """build_ycsb_run
-
         Creates the YCSB run command as a list that may be passed to Popen
         """
         return [
@@ -92,7 +88,6 @@ class DbSystem:
 
     def clean(self):
         """clean
-
         Cleans all YCSB+T data from the database by calling the corresponding
         clean command (configured in constants.py)
         """
