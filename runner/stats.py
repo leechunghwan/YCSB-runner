@@ -55,7 +55,7 @@ class Statistics:
 
     @property
     def anomaly_score(self):
-        """score
+        """anomaly_score
         Calculates the closed economy workload Simple Anomaly Score
         Returns None if S.A.S. can't be calculated from current data
         """
