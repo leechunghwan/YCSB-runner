@@ -1,17 +1,7 @@
-from .constants import *
+import .constants as const
 
 class Statistics:
     """Statistics: Stores statistical data for a single run of YCSB"""
-    # Map statistic names to their base Python type functions
-    TRACKED_STATS = {
-        'totalcash'  : float, # From YCSB output
-        'countcash'  : float, # From YCSB output
-        'opcount'    : float, # From YCSB output
-        'runtime'    : float, # From YCSB output
-        'throughput' : float, # From YCSB output
-        'mpl'        : int  , # Multiprogramming level (# threads)
-        'trial'      : int  , # Trial number
-    }
 
     # The prefix for said methods, to prevent name clashes
     __FUNC_ATTRS_PREFIX = "calc_"
@@ -21,12 +11,12 @@ class Statistics:
         self.__stats = {}
         # Import values from given keyword arguments
         for k, v in kwargs.items():
-            if k not in self.TRACKED_STATS:
+            if k not in const.TRACKED_STATS:
                 raise AttributeError("Unexpected keyword argument: '%s'. " % k +
-                    "Valid arguments are ({})".format(','.join(self.TRACKED_STATS.keys())))
+                    "Valid arguments are ({})".format(','.join(const.TRACKED_STATS.keys())))
             setattr(self, k, v)
         # Add default values for missing stats
-        for k, v in self.TRACKED_STATS.items():
+        for k, v in const.TRACKED_STATS.items():
             if k not in kwargs:
                 setattr(self, k, v())
 
@@ -38,10 +28,10 @@ class Statistics:
 
     # Store stats attributes in __stats dict
     def __setattr__(self, name, value):
-        if name in self.TRACKED_STATS:
-            if type(value) != type(self.TRACKED_STATS[name]()):
+        if name in const.TRACKED_STATS:
+            if type(value) != type(const.TRACKED_STATS[name]()):
                 raise TypeError("Type mismatch: '%s' should be '%s', but was '%s'" %
-                    (name, type(self.TRACKED_STATS[name]()).__name__, type(value).__name__))
+                    (name, type(const.TRACKED_STATS[name]()).__name__, type(value).__name__))
             self.__stats[name] = value
         else:
             object.__setattr__(self, name, value)

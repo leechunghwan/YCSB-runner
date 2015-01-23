@@ -1,6 +1,6 @@
 import os
 
-from .constants import *
+import .constants as const
 
 class DbSystem:
     # A list of required configuration fields
@@ -9,7 +9,7 @@ class DbSystem:
         'inc_mpl', 'workload'
     ]
 
-    def __init__(self, dbname, config, label="", tablename=DEFAULT_TABLENAME):
+    def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
         self.dbname = dbname
         self.label = label
         self.tablename = tablename

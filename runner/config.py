@@ -1,8 +1,8 @@
 import re
 import configparser
+import .constants as const
 
 from .dbsystem  import DbSystem
-from .constants import *
 
 class RunnerConfig:
     """RunnerConfig: Reads and parses a YCSB Runner config file
@@ -84,16 +84,16 @@ class RunnerConfig:
         db_instances = []
         for db in section:
             # Extract and remove the DBMS label
-            label = RE_DBNAME_LABEL.search(db)
+            label = const.RE_DBNAME_LABEL.search(db)
             if label is not None:
                 label, = label.groups(0)
-                db = RE_DBNAME_LABEL.sub("", db)
+                db = const.RE_DBNAME_LABEL.sub("", db)
             else:
                 label = ""
             # Validate DBMS name
-            if db.lower() not in SUPPORTED_DBS:
+            if db.lower() not in const.SUPPORTED_DBS:
                 print("Invalid database found: %s. Only (%s) are supported. Skipping..." %
-                        (db, ','.join(SUPPORTED_DBS)))
+                        (db, ','.join(const.SUPPORTED_DBS)))
                 continue
 
             # Get the tablename, or use default

@@ -71,12 +71,24 @@ CLEAN_COMMANDS = {
     ],
 }
 
-# Regex precompilation
-REGEXPS = {
-    'totalcash'    : re.compile(r"TOTAL CASH], ([0-9]+)"),
-    'countcash'    : re.compile(r"COUNTED CASH], ([0-9]+)"),
-    'opcount'      : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
-    'runtime'      : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
-    'throughput'   : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
+# Regex precompilation for statistics extraction
+# The first match group is extracted for each statistic
+STAT_REGEXPS = {
+    'totalcash'  : re.compile(r"TOTAL CASH], ([0-9]+)"),
+    'countcash'  : re.compile(r"COUNTED CASH], ([0-9]+)"),
+    'opcount'    : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
+    'runtime'    : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
+    'throughput' : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
 }
 
+# Mappings of tracked statistics to their Python types
+# Note: Only statistics listed here will be stored by the Statistics class
+TRACKED_STATS = {
+    'totalcash'  : float, # From YCSB output
+    'countcash'  : float, # From YCSB output
+    'opcount'    : float, # From YCSB output
+    'runtime'    : float, # From YCSB output
+    'throughput' : float, # From YCSB output
+    'mpl'        : int  , # Multiprogramming level (# threads)
+    'trial'      : int  , # Trial number
+}
