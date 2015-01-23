@@ -71,6 +71,25 @@ CLEAN_COMMANDS = {
     ],
 }
 
+# This defines the option keys available in each section of the Runner
+# configuration file
+# trials        =   Number of times to run workload for each MPL
+# min_mpl       =   min YCSB threads
+# max_mpl       =   max YCSB threads
+# inc_mpl       =   YCSB thread increase increment
+# output        =   output format
+# workload      =   workload file path
+# output_plots  =   whether to generate plots
+OPTION_KEYS = {
+    'trials'      : int(),
+    'min_mpl'     : int(),
+    'max_mpl'     : int(),
+    'inc_mpl'     : int(),
+    'output'      : lambda s: str(s).lower(),
+    'workload'    : str(),
+    'output_plots': bool(),
+}
+
 # Regex precompilation for statistics extraction
 # The first match group is extracted for each statistic
 STAT_REGEXPS = {

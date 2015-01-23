@@ -7,22 +7,6 @@ from .dbsystem  import DbSystem
 class RunnerConfig:
     """RunnerConfig: Reads and parses a YCSB Runner config file
     (INI-compliant format)"""
-    # trials        =   Number of times to run workload for each MPL
-    # min_mpl       =   min YCSB threads
-    # max_mpl       =   max YCSB threads
-    # inc_mpl       =   YCSB thread increase increment
-    # output        =   output format
-    # workload      =   workload file path
-    # output_plots  =   whether to generate plots
-    OPTION_KEYS = {
-        'trials'      : int(),
-        'min_mpl'     : int(),
-        'max_mpl'     : int(),
-        'inc_mpl'     : int(),
-        'output'      : lambda s: str(s).lower(),
-        'workload'    : str(),
-        'output_plots': bool(),
-    }
 
     def __init__(self, configfile):
         """__init__
@@ -54,7 +38,7 @@ class RunnerConfig:
         k=v options should be processed
         """
         config = {}
-        for k, t in self.OPTION_KEYS.items():
+        for k, t in const.OPTION_KEYS.items():
             # Handle integer-valued keys
             if type(t) is type(int()):
                 config[k] = self.config.getint(section, k)
