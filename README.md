@@ -25,7 +25,7 @@ project.
  - Run a configurable number of trials with each set of YCSB run options
  - Simple extensibility
 
-# License
+## License
 
 Copyright 2015 Benjamin Brent
 
