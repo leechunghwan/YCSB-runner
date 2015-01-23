@@ -114,6 +114,7 @@ OPTION_DEFAULTS = {
 
 # Regex precompilation for statistics extraction
 # The first match group is extracted for each statistic
+# The keys in this dict should match to keys in TRACKED_STATS
 STAT_REGEXPS = {
     'totalcash'  : re.compile(r"TOTAL CASH], ([0-9]+)"),
     'countcash'  : re.compile(r"COUNTED CASH], ([0-9]+)"),
