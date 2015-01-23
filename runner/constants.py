@@ -90,13 +90,13 @@ CLEAN_COMMANDS = {
 # workload      =   workload file path
 # output_plots  =   whether to generate plots
 OPTION_KEYS = {
-    'trials'      : int(),
-    'min_mpl'     : int(),
-    'max_mpl'     : int(),
-    'inc_mpl'     : int(),
+    'trials'      : int,
+    'min_mpl'     : int,
+    'max_mpl'     : int,
+    'inc_mpl'     : int,
     'output'      : lambda s: str(s).lower(),
-    'workload'    : str(),
-    'output_plots': bool(),
+    'workload'    : str,
+    'output_plots': bool,
 }
 
 # Specifies default values for options in the Runner configuration file

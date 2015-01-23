@@ -40,13 +40,13 @@ class RunnerConfig:
         config = {}
         for k, t in const.OPTION_KEYS.items():
             # Handle integer-valued keys
-            if type(t) is type(int()):
+            if type(t) is int:
                 config[k] = self.config.getint(section, k)
             # Handle boolean-valued keys
-            elif type(t) is type(bool()):
+            elif type(t) is bool:
                 config[k] = self.config.getboolean(section, k)
             # Handle string-valued keys
-            elif type(t) is type(str()):
+            elif type(t) is str:
                 config[k] = self.config.get(section, k)
             elif callable(t):
                 config[k] = t(self.config.get(section, k))
