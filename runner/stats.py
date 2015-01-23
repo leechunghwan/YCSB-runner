@@ -97,6 +97,12 @@ class StatisticsSet:
                 return f(name)
         raise AttributeError
 
+    def __len__(self):
+        """__len__
+        Number of Statistics instances stored
+        """
+        return len(self.__stats)
+
     def addstats(self, *args):
         """addstats
         Add the given Statistics instances to this StatisticsSet instance
@@ -129,8 +135,8 @@ class StatisticsSet:
 
     def sum(self, field):
         """sum
-
         Sum of values stored in given field
+
         :param field: Field to be summed
         """
         stats = self.getvalues(field)
@@ -138,8 +144,8 @@ class StatisticsSet:
 
     def count(self, field):
         """count
-
         Number of values stored in given field
+
         :param field: Field to count
         """
         stats = self.getvalues(field)
