@@ -2,10 +2,15 @@ import os
 import sys
 import subprocess
 
-from .       import constants as const
-from .config import RunnerConfig
+from shutil    import copyfile
+from itertools import count
+
+from .         import constants as const
+from .config   import RunnerConfig
 
 class Runner:
+    """Runner: Makes Popen calls to run YCSB, collects output, extracts data
+    from YCSB output, handles logging"""
     def __init__(self, configpath):
         """__init__
 
@@ -13,23 +18,34 @@ class Runner:
         """
         self.config = RunnerConfig(configpath)
 
-    @classmethod
-    def log(cls, message):
-        print("<<YCSB Runner>>: %s" % str(message))
+    def log(self, message):
+        """log
+        Logs the given message to the output log and STDOUT
+        This should be used for messages specifically for the user to see.
+
+        :param message:
+        """
+        message = "<<YCSB Runner>>: %s" % str(message)
+        # TODO: Log to logfile
+        print(message)
 
     def run(self):
         for db in self.config.dbs:
             for trial in range(1, trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
-                Runner.log("Starting trial %i (%s)..." % (trial, db.labelname))
+                self.log("Starting trial %i (%s)..." % (trial, db.labelname))
                 # Clean the database
-                Runner.log("Cleaning the database...")
+                self.log("Cleaning the database...")
                 db.clean()
                 # Load data and run YCSB
-                Runner.log("Loading YCSB data...")
+                self.log("Loading YCSB data...")
                 self.__popen(db.cmd_ycsb_load(), save_output=False)
-                Runner.log("Running YCSB workload...")
+                self.log("Running YCSB workload...")
                 self.__popen(db.cmd_ycsb_run(mpl), save_output=True )
+
+    @property
+    def __logfile(self):
+        raise NotImplementedError
 
     def __popen(self, cmd, save_output=False):
         """__popen
