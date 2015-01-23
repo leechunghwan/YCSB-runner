@@ -1,0 +1,5 @@
+YCSB Runner
+Copyright 2015 Benjamin Brent
+
+This product includes software developed at
+the University of Sydney (http://www.sydney.edu.au/).
