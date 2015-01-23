@@ -53,34 +53,45 @@ class DbSystem:
         """
         return [s.replace("{TABLENAME}", self.tablename) for s in lst]
 
+    @property
+    def labelname(self):
+        """labelname
+        The name of the database with its label
+        """
+        return self.dbname + self.label
+
+    @property
     def workload_path(self):
+        """workload_path
+        Path to the YCSB workload file for this DB instance
+        """
         return os.path.join(os.getcwd(), self.workload),
 
-    def construct_ycsb_load(self):
-        """build_ycsb_load
-        Creates the YCSB load command as a list that may be passed to Popen
+    def cmd_ycsb_load(self):
+        """cmd_ycsb_load
+        Gets the YCSB load command as a list that may be passed to Popen
         """
         return [
             "ycsb",
             "load",
             self.dbname,
             "-P",
-            self.workload_path(),
+            self.workload_path,
             "-s",
             "-threads",
             "1",
         ]
 
-    def construct_ycsb_run(self, mpl):
-        """build_ycsb_run
-        Creates the YCSB run command as a list that may be passed to Popen
+    def cmd_ycsb_run(self, mpl):
+        """cmd_ycsb_run
+        Gets the YCSB run command as a list that may be passed to Popen
         """
         return [
             "ycsb",
             "run",
             self.dbname,
             "-P",
-            self.workload_path(),
+            self.workload_path,
             "-s",
             "-threads",
             str(mpl),
