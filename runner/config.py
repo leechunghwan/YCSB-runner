@@ -99,7 +99,7 @@ class RunnerConfig:
             # Get the tablename, or use default
             # TODO: Maybe grab this from the workload config file instead of
             # the runner config?
-            tablename = self.config.get("tablename", DEFAULT_TABLENAME)
+            tablename = self.config.get(db+label, "tablename", fallback=const.DEFAULT_TABLENAME)
             # Build the DbSystem object
             db_instances.append(DbSystem(db, config, label=label,
                 tablename=tablename))

@@ -26,7 +26,7 @@ class Runner:
         :param message:
         """
         message = "<<YCSB Runner>>: %s" % str(message)
-        # TODO: Log to logfile
+
         print(message)
 
     def run(self):

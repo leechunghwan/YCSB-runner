@@ -10,10 +10,13 @@ class DbSystem:
     ]
 
     def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
+        # Ensure we have all required fields
+        self.__validate_config(config)
+        # Set instance vars
+        self.config = config
         self.dbname = dbname
         self.label = label
         self.tablename = tablename
-        self.config = config
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):
@@ -23,7 +26,8 @@ class DbSystem:
 
     # Sets attributes in the configuration dict
     def __setattr__(self, name, value):
-        if name in self.config and type(value) == type(self.config[name]):
+        if (name != 'config' and name in self.config and
+                type(value) == type(self.config[name])):
             self.config[name] = value
         else:
             object.__setattr__(self, name, value)
@@ -36,13 +40,10 @@ class DbSystem:
 
         :param config: dict of configuration key -> value mappings
         """
-        for k in config:
-            if k not in self.__REQUIRED_FIELDS:
-                raise AttributeError("Key %s is not a configuration parameter" % k)
         for k in self.__REQUIRED_FIELDS:
-            if k not in self.config:
+            if k not in config:
                 raise AttributeError("Missing required configuration parameter: %s" % k)
-        return true # presumably nothing was raised and all is well
+        return True # presumably nothing was raised and all is well
 
     def __tablenameify(self, lst):
         """__tablenameify
