@@ -83,6 +83,8 @@ class StatisticsSet:
         # Mappings of magic prefixes to aggregation methods
         self.__MAGIC_ATTR_PREFIX_MAP = {
             "avg_": self.average,
+            "sum_": self.sum,
+            "num_": self.count,
         }
         self.__stats = []
         self.addstats(*args)
@@ -94,7 +96,6 @@ class StatisticsSet:
                 name = re.sub(r'^' + prefix, "", name)
                 return f(name)
         raise AttributeError
-
 
     def addstats(self, *args):
         """addstats
