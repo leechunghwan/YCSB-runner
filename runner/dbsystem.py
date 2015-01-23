@@ -1,6 +1,6 @@
 import os
 
-import .constants as const
+from . import constants as const
 
 class DbSystem:
     # A list of required configuration fields

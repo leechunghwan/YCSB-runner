@@ -1,4 +1,4 @@
-import .constants as const
+from . import constants as const
 
 class Statistics:
     """Statistics: Stores statistical data for a single run of YCSB"""

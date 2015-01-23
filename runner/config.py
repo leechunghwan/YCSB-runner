@@ -1,7 +1,7 @@
 import re
 import configparser
-import .constants as const
 
+from .          import constants as const
 from .dbsystem  import DbSystem
 
 class RunnerConfig:
