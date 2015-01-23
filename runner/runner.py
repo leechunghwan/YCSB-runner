@@ -18,42 +18,26 @@ class Runner:
         """
         self.config = RunnerConfig(configpath)
 
-    def log(self, message):
-        """log
-        Logs the given message to the output log and STDOUT
-        This should be used for messages specifically for the user to see.
-
-        :param message:
-        """
-        message = "<<YCSB Runner>>: %s" % str(message)
-
-        print(message)
-
     def run(self):
         for db in self.config.dbs:
             for trial in range(1, trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
-                self.log("Starting trial %i (%s)..." % (trial, db.labelname))
+                db.log("Starting trial %i (%s)..." % (trial, db.labelname))
                 # Clean the database
-                self.log("Cleaning the database...")
+                db.log("Cleaning the database...")
                 db.clean()
                 # Load data and run YCSB
-                self.log("Loading YCSB data...")
+                db.log("Loading YCSB data...")
                 self.__popen(db.cmd_ycsb_load(), save_output=False)
-                self.log("Running YCSB workload...")
-                self.__popen(db.cmd_ycsb_run(mpl), save_output=True )
+                db.log("Running YCSB workload...")
+                self.__popen(db.cmd_ycsb_run(mpl), save_output=True)
+            db.cleanup() # ensure file handles are closed properly and don't leak
 
-    @property
-    def __logfile(self):
-        raise NotImplementedError
-
-    def __popen(self, cmd, save_output=False):
+    def __popen(self, cmd):
         """__popen
         Open a process given by the list of shell arguments, cmd
 
         :param cmd: List of shell arguments, including name of command as
         first element
-        :param save_output: Whether or not to write the STDOUT and STDERR
-        output of this command to the output logfile (default is False)
         """
         raise NotImplementedError

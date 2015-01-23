@@ -1,6 +1,8 @@
 import os
 
-from . import constants as const
+from datetime import datetime
+
+from .        import constants as const
 
 class DbSystem:
     # A list of required configuration fields
@@ -12,11 +14,15 @@ class DbSystem:
     def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
         # Ensure we have all required fields
         self.__validate_config(config)
-        # Set instance vars
+        # Set public instance vars
         self.config = config
         self.dbname = dbname
         self.label = label
         self.tablename = tablename
+        # Private instance vars
+        self.__datestr = datetime.now().isoformat()
+        self.__outdir = None
+        self.__stats = None
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):
@@ -60,6 +66,46 @@ class DbSystem:
         The name of the database with its label
         """
         return self.dbname + self.label
+
+    @property
+    def outdirpath(self):
+        """outdirpath
+        Name and path to the directory for output for this DBMS
+        """
+        if self.__outdir == None:
+            self.__outdir = os.path.join(".", "output", self.__datestr +
+                    "-{}".format(self.labelname))
+        return self.__outdir
+
+    @property
+    def logfile(self):
+        """logfile
+        A Python file object for the output logfile for this database
+        """
+        if self.__logfile == None or self.__logfile.closed:
+            lfname = "log-{}-{}.log".format(self.labelname, self.__datestr)
+            lfpath = os.path.join(self.outdirpath, lfname)
+            self.__logfile = open(lfpath, 'w')
+
+    def log(self, message, lf=True):
+        """log
+        Logs the given message to the output log and STDOUT
+        This should be used for messages specifically for the user to see.
+
+        :param message:
+        """
+        message = str(message) # ensure message is always a string
+        print(const.LOG_LINE_PREFIX % message)
+        if lf:
+            print(const.LOG_LINE_PREFIX % message, file=self.logfile)
+
+    def cleanup(self):
+        """cleanup
+        Close file handles and perform clean-up.
+        This should be called when this DB has been processed.
+        """
+        if self.__logfile != None and not self.__logfile.closed:
+            self.logfile.close()
 
     @property
     def workload_path(self):
