@@ -23,3 +23,4 @@ project.
  - Data plotting
  - Configure YCSB run options, including varying the thread count (MPL)
  - Run a configurable number of trials with each set of YCSB run options
+ - Simple extensibility
