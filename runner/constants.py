@@ -1,7 +1,12 @@
 import re
 
+### OUTPUTS ########################################################
+
 # Supported output formats
 SUPPORTED_OUTPUTS = ['csv']
+####################################################################
+
+### DATABASES: #####################################################
 
 # Supported database systems
 SUPPORTED_DBS = [
@@ -71,6 +76,10 @@ CLEAN_COMMANDS = {
     ],
 }
 
+####################################################################
+
+### CONFIGURATION: #################################################
+
 # This defines the option keys available in each section of the Runner
 # configuration file
 # trials        =   Number of times to run workload for each MPL
@@ -89,6 +98,19 @@ OPTION_KEYS = {
     'workload'    : str(),
     'output_plots': bool(),
 }
+
+# Specifies default values for options in the Runner configuration file
+OPTION_DEFAULTS = {
+    'trials'      : 1,
+    'min_mpl'     : 1,
+    'max_mpl'     : 25,
+    'inc_mpl'     : 4,
+    'output'      : 'csv',
+    'output_plots': True,
+}
+####################################################################
+
+### STATS COLLECTION: ##############################################
 
 # Regex precompilation for statistics extraction
 # The first match group is extracted for each statistic
@@ -111,3 +133,4 @@ TRACKED_STATS = {
     'mpl'        : int  , # Multiprogramming level (# threads)
     'trial'      : int  , # Trial number
 }
+####################################################################

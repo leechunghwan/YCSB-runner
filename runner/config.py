@@ -14,7 +14,7 @@ class RunnerConfig:
         :param configfile: Path to the runner configuration file
         """
         # Read the config with Python's ConfigParser first
-        self.config = configparser.ConfigParser()
+        self.config = configparser.ConfigParser(defaults=const.OPTION_DEFAULTS)
         self.config.read(configfile)
         # Now, process the config further, extracting DBMS names, options
         self.dbs = self.__process_sections()
