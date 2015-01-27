@@ -58,7 +58,8 @@ class DbSystem:
         """__tablenameify
         Replaces {TABLENAME} with the configured name of the YCSB+T table in
         the given list of strings
-:param lst: List of strings within which {TABLENAME} should be subbed
+
+        :param lst: List of strings within which {TABLENAME} should be subbed
         """
         return [s.replace("{TABLENAME}", self.tablename) for s in lst]
 
@@ -92,6 +93,7 @@ class DbSystem:
             lfname = "log-{}-{}.log".format(self.labelname, self.__datestr)
             lfpath = os.path.join(self.outdirpath, lfname)
             self.__logfile = open(lfpath, 'w')
+        return self.__logfile
 
     def log(self, message, lf=True):
         """log
