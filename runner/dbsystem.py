@@ -109,7 +109,7 @@ class DbSystem:
         This should be called when this DB has been processed.
         """
         if self.__logfile != None and not self.__logfile.closed:
-            self.logfile.close()
+            self.__logfile.close()
 
     @property
     def workload_path(self):
@@ -123,6 +123,7 @@ class DbSystem:
         Gets the YCSB load command as a list that may be passed to Popen
         """
         return [
+
             "ycsb",
             "load",
             self.dbname,
