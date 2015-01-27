@@ -47,13 +47,16 @@ class Runner:
         :param cmd: List of shell arguments, including name of command as
         first element
         """
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE) as proc:
-            # Collect and return stdout after running process
-            stdout = proc.stdout.read().decode("utf-8")
-            # Always print stdout back to stdout
-            print(stdout)
-            return stdout
-        return None
+        try:
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE) as proc:
+                # Collect and return stdout after running process
+                stdout = proc.stdout.read().decode("utf-8")
+                # Always print stdout back to stdout
+                print(stdout)
+                return stdout
+        except OSError:
+            # e.g. file doesn't exist, etc.
+            return None
 
     @classmethod
     def extract_stats(cls, stdout):
