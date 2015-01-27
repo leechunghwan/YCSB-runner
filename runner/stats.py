@@ -5,9 +5,6 @@ from . import constants as const
 class Statistics:
     """Statistics: Stores statistical data for a single run of YCSB"""
 
-    # The prefix for said methods, to prevent name clashes
-    __FUNC_ATTRS_PREFIX = "calc_"
-
     # Handle importing stats from kwargs
     def __init__(self, **kwargs):
         self.__stats = {}
@@ -39,11 +36,13 @@ class Statistics:
             object.__setattr__(self, name, value)
 
     def __str__(self):
-        data = dict(self.__stats)
-        # Add function mapped attributes
-        for fa in self.__FUNC_ATTRS:
-            data[fa] = getattr(self, fa)
-        return str(data)
+        return str(dict(self.__stats))
+
+    def __dir__(self):
+        objdir = list(dir(super(Statistics, self)))
+        objdir += list(self.__dict__.keys())
+        objdir +=  list(self.__stats.keys())
+        return objdir
 
     @property
     def anomaly_score(self):
@@ -94,6 +93,14 @@ class StatisticsSet:
         Number of Statistics instances stored
         """
         return len(self.__stats)
+
+    def __dir__(self):
+        objdir = list(dir(super(StatisticsSet, self)))
+        objdir += list(self.__dict__.keys())
+        for prefix in self.__MAGIC_ATTR_PREFIX_MAP.keys():
+            for stat in const.TRACKED_STATS.keys():
+                objdir.append(prefix + stat)
+        return objdir
 
     def addstats(self, *args):
         """addstats
