@@ -26,8 +26,7 @@ class Runner:
                     # Obvious; don't go above configured maximum MPL
                     if mpl > db.max_mpl:
                         break
-                    db.log("Starting trial %i (%s)..." % (trial,
-                        db.labelname), mpl=mpl, trial=trial)
+                    db.log("Starting trial %i..." % (trial), mpl=mpl, trial=trial)
                     # Clean the database
                     db.log("Cleaning the database...", mpl=mpl, trial=trial)
                     db.clean()
