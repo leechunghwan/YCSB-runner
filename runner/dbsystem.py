@@ -75,6 +75,10 @@ class DbSystem:
         if self.__outdir == None:
             self.__outdir = os.path.join(".", "output", self.__datestr +
                     "-{}".format(self.labelname))
+        # Make the output dir if it doesn't exist, since we might as well do
+        #   this ASAP
+        if not os.path.exists(self.__outdir):
+            os.makedirs(self.__outdir)
         return self.__outdir
 
     @property
