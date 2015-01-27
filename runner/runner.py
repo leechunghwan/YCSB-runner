@@ -1,13 +1,14 @@
 import os
 import sys
 import subprocess
+import configparser
 
 from shutil    import copyfile
 from itertools import count
 
 from .         import constants as const
-from .config   import RunnerConfig
 from .stats    import Statistics
+from .dbsystem import DbSystem
 
 class Runner:
     """Runner: Makes Popen calls to run YCSB, collects output, extracts data
@@ -17,10 +18,19 @@ class Runner:
 
         :param configpath: Path to YCSB Runner configuration file
         """
-        self.config = RunnerConfig(configpath)
+        # Check that the configpath exists before reading it
+        if not os.path.exists(configpath):
+            raise IOError("Runner config file '%s' does not exist" % configpath)
+        # Read the config with Python's ConfigParser first
+        self.__config = configparser.ConfigParser(defaults=const.OPTION_DEFAULTS)
+        self.__config.read(configpath)
+
+        # Now, process the config further, extracting DBMS names, options
+        self.dbs = self.__process_sections()
+
 
     def run(self):
-        for db in self.config.dbs:
+        for db in self.dbs:
             for trial in range(1, db.trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
                     # Obvious; don't go above configured maximum MPL
@@ -60,6 +70,76 @@ class Runner:
             # Always print stdout back to stdout
             print(stdout)
             return stdout
+
+    def __process_sections(self):
+        """__process_sections
+
+        Processes each section in the config file,
+        populating this object with corresponding DbSystem instances
+        """
+        dbs = []
+        for section in self.__config.sections():
+            config = self.__process_config_keys(section)
+            dbs += self.__process_dbs(section, config)
+        return dbs
+
+    def __process_config_keys(self, section):
+        """__process_config_keys
+
+        :param section: Name of section from runner config file for which
+        k=v options should be processed
+        """
+        config = {}
+        for k, t in const.OPTION_KEYS.items():
+            # Handle integer-valued keys
+            if type(t) is int:
+                config[k] = self.__config.getint(section, k)
+            # Handle boolean-valued keys
+            elif type(t) is bool:
+                config[k] = self.__config.getboolean(section, k)
+            # Handle string-valued keys
+            elif type(t) is str:
+                config[k] = self.__config.get(section, k)
+            elif callable(t):
+                config[k] = t(self.__config.get(section, k))
+            else:
+                print("Warning: skipping key %s with invalid type" % k)
+        return config
+
+    def __process_dbs(self, section, config):
+        """__process_dbs
+
+        Creates DbSystem instances with their corresponding configurations for
+        each DBMS in the runner config
+
+        :param section:
+        :param config:
+        """
+        # Section headings may contain multiple DB names, CSV format
+        section = [s.strip() for s in section.split(',')]
+        db_instances = []
+        for db in section:
+            # Extract and remove the DBMS label
+            label = const.RE_DBNAME_LABEL.search(db)
+            if label is not None:
+                label, = label.groups(0)
+                db = const.RE_DBNAME_LABEL.sub("", db)
+            else:
+                label = ""
+            # Validate DBMS name
+            if db.lower() not in const.SUPPORTED_DBS:
+                print("Invalid database found: %s. Only (%s) are supported. Skipping..." %
+                        (db, ','.join(const.SUPPORTED_DBS)))
+                continue
+
+            # Get the tablename, or use default
+            # TODO: Maybe grab this from the workload config file instead of
+            #       the runner config?
+            tablename = self.__config.get(db+label, "tablename", fallback=const.DEFAULT_TABLENAME)
+            # Build the DbSystem object
+            db_instances.append(DbSystem(db, config, label=label,
+                tablename=tablename))
+        return db_instances
 
     @classmethod
     def extract_stats(cls, stdout):
