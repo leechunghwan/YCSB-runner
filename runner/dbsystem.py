@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from datetime import datetime
 
@@ -24,12 +25,13 @@ class DbSystem:
         self.__datestr = datetime.now().isoformat()
         self.__outdir = None
         self.__stats = None
+        self.__logfile = None
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):
         if name in self.config:
             return self.config[name]
-        raise AttributeError
+        raise AttributeError("Attribute '%s' not found" % name)
 
     # Sets attributes in the configuration dict
     def __setattr__(self, name, value):
@@ -123,14 +125,13 @@ class DbSystem:
         """workload_path
         Path to the YCSB workload file for this DB instance
         """
-        return os.path.join(os.getcwd(), self.workload),
+        return os.path.join(os.getcwd(), self.workload)
 
     def cmd_ycsb_load(self):
         """cmd_ycsb_load
         Gets the YCSB load command as a list that may be passed to Popen
         """
         return [
-
             "ycsb",
             "load",
             self.dbname,
@@ -164,10 +165,10 @@ class DbSystem:
         This should be called BEFORE the DB is processed
         """
         if self.dbname.lower() == "jdbc":
-            subprocess.call(self.__tablenameify(CLEAN_COMMANDS['mysql']))
-            subprocess.call(self.__tablenameify(CLEAN_COMMANDS['psql']))
+            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS['mysql']))
+            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS['psql']))
         else:
-            subprocess.call(self.__tablenameify(CLEAN_COMMANDS[self.dbname.lower()]))
+            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS[self.dbname.lower()]))
 
     @property
     def stats(self):

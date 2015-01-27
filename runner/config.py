@@ -1,3 +1,4 @@
+import os
 import re
 import configparser
 
@@ -13,6 +14,9 @@ class RunnerConfig:
 
         :param configfile: Path to the runner configuration file
         """
+        # Check that the configfile exists before reading it
+        if not os.path.exists(configfile):
+            raise IOError("Runner config file '%s' does not exist" % configfile)
         # Read the config with Python's ConfigParser first
         self.config = configparser.ConfigParser(defaults=const.OPTION_DEFAULTS)
         self.config.read(configfile)

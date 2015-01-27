@@ -20,7 +20,7 @@ class Runner:
 
     def run(self):
         for db in self.config.dbs:
-            for trial in range(1, trials + 1):
+            for trial in range(1, db.trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
                     db.log("Starting trial %i (%s)..." % (trial, db.labelname))
                     # Clean the database
@@ -28,10 +28,10 @@ class Runner:
                     db.clean()
                     # Load data and run YCSB
                     db.log("Loading YCSB data...")
-                    self.__popen(db.cmd_ycsb_load(), db)
+                    self.__popen(db.cmd_ycsb_load())
                     db.log("Running YCSB workload...")
                     # Run YCSB+T, log output, collect stats
-                    stats = Runner.extract_stats(self.__popen(db.cmd_ycsb_run(mpl), db))
+                    stats = Runner.extract_stats(self.__popen(db.cmd_ycsb_run(mpl)))
                     # Set the MPL and trial number in the stats row
                     stats.mpl = mpl
                     stats.trial = trial
