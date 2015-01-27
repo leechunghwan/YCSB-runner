@@ -1,3 +1,5 @@
+import re
+
 from . import constants as const
 
 class Statistics:
