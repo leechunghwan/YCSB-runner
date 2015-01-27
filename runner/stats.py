@@ -88,6 +88,19 @@ class StatisticsSet:
                 return f(name)
         raise AttributeError
 
+    def __getitem__(self, index):
+        """__getitem__
+        Implements index operator [] to get store Statistics instances
+
+        :param index: Index to retrieve
+        """
+        try:
+            return self.__stats[index]
+        # Custom error string to avoid confusion and avoid leaking internal
+        # implementation details
+        except IndexError:
+            raise IndexError("StatisticsSet index out of range")
+
     def __len__(self):
         """__len__
         Number of Statistics instances stored
