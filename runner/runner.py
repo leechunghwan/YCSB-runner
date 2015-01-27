@@ -7,6 +7,7 @@ from itertools import count
 
 from .         import constants as const
 from .config   import RunnerConfig
+from .stats    import Statistics
 
 class Runner:
     """Runner: Makes Popen calls to run YCSB, collects output, extracts data
@@ -22,14 +23,18 @@ class Runner:
         for db in self.config.dbs:
             for trial in range(1, db.trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
-                    db.log("Starting trial %i (%s)..." % (trial, db.labelname))
+                    # Obvious; don't go above configured maximum MPL
+                    if mpl > db.max_mpl:
+                        break
+                    db.log("Starting trial %i (%s)..." % (trial,
+                        db.labelname), mpl=mpl, trial=trial)
                     # Clean the database
-                    db.log("Cleaning the database...")
+                    db.log("Cleaning the database...", mpl=mpl, trial=trial)
                     db.clean()
                     # Load data and run YCSB
-                    db.log("Loading YCSB data...")
+                    db.log("Loading YCSB data...", mpl=mpl, trial=trial)
                     self.__popen(db.cmd_ycsb_load())
-                    db.log("Running YCSB workload...")
+                    db.log("Running YCSB workload...", mpl=mpl, trial=trial)
                     # Run YCSB+T, log output, collect stats
                     stats = Runner.extract_stats(self.__popen(db.cmd_ycsb_run(mpl)))
                     # Set the MPL and trial number in the stats row
@@ -47,16 +52,15 @@ class Runner:
         :param cmd: List of shell arguments, including name of command as
         first element
         """
-        try:
-            with subprocess.Popen(cmd, stdout=subprocess.PIPE) as proc:
-                # Collect and return stdout after running process
-                stdout = proc.stdout.read().decode("utf-8")
-                # Always print stdout back to stdout
-                print(stdout)
-                return stdout
-        except OSError:
-            # e.g. file doesn't exist, etc.
-            return None
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE) as proc:
+            # Collect and return stdout after running process
+            stdout = proc.stdout.read().decode("utf-8")
+            # If this doesn't hold then something is horribly wrong and we
+            #   should abort mission
+            assert type(stdout) is str
+            # Always print stdout back to stdout
+            print(stdout)
+            return stdout
 
     @classmethod
     def extract_stats(cls, stdout):
@@ -72,7 +76,7 @@ class Runner:
             if m is not None:
                 stats[k] = const.TRACKED_STATS[k](m)
         # Return new Statistics row storing extracted stats
-        return Statistics(stats)
+        return Statistics(**stats)
 
     @classmethod
     def get_re_match(cls, regex, string):
