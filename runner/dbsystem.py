@@ -41,6 +41,12 @@ class DbSystem:
         else:
             object.__setattr__(self, name, value)
 
+    def __dir__(self):
+        objdir = list(dir(super(DbSystem, self)))
+        objdir += list(self.__dict__.keys())
+        objdir +=  list(self.config.keys())
+        return objdir
+
     def __validate_config(self, config):
         """__validate_config
         Ensure the given config dict contains all required keys, and no
