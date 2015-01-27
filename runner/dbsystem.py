@@ -106,7 +106,10 @@ class DbSystem:
     def cleanup(self):
         """cleanup
         Close file handles and perform clean-up.
-        This should be called when this DB has been processed.
+        This should be called AFTER this DB has been processed.
+
+        **NOTE** This is VERY different to DbSystem.clean(), which purges all
+        YCSB data from the DBMS
         """
         if self.__logfile != None and not self.__logfile.closed:
             self.__logfile.close()
@@ -153,6 +156,8 @@ class DbSystem:
         """clean
         Cleans all YCSB+T data from the database by calling the corresponding
         clean command (configured in constants.py)
+
+        This should be called BEFORE the DB is processed
         """
         if self.dbname.lower() == "jdbc":
             subprocess.call(self.__tablenameify(CLEAN_COMMANDS['mysql']))
