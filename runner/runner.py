@@ -28,12 +28,10 @@ class Runner:
                     db.clean()
                     # Load data and run YCSB
                     db.log("Loading YCSB data...")
-                    db.log(self.__popen(db.cmd_ycsb_load(), db))
+                    self.__popen(db.cmd_ycsb_load(), db)
                     db.log("Running YCSB workload...")
                     # Run YCSB+T, log output, collect stats
-                    # This function chaining is possible because __popen and db.log
-                    #   both return the stdout from running the command
-                    stats = Runner.extract_stats(db.log(self.__popen(db.cmd_ycsb_run(mpl), db)))
+                    stats = Runner.extract_stats(self.__popen(db.cmd_ycsb_run(mpl), db))
                     # Set the MPL and trial number in the stats row
                     stats.mpl = mpl
                     stats.trial = trial
@@ -52,6 +50,8 @@ class Runner:
         with subprocess.Popen(cmd, stdout=subprocess.PIPE) as proc:
             # Collect and return stdout after running process
             stdout = proc.stdout.read().decode("utf-8")
+            # Always print stdout back to stdout
+            print(stdout)
             return stdout
         return None
 

@@ -101,7 +101,7 @@ class DbSystem:
         :param message: Message to be logged
         :param lf: Whether or not to write message to the logfile for this DB
         """
-        message = "%s: %s" % (self.labelname, message)
+        message = str(message) # ensure message is a string
         print(const.LOG_LINE_PREFIX % message)
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
