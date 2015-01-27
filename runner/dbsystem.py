@@ -92,12 +92,16 @@ class DbSystem:
         Logs the given message to the output log and STDOUT
         This should be used for messages specifically for the user to see.
 
-        :param message:
+        Returns the message
+
+        :param message: Message to be logged
+        :param lf: Whether or not to write message to the logfile for this DB
         """
-        message = str(message) # ensure message is always a string
+        message = "%s: %s" % (self.labelname, message)
         print(const.LOG_LINE_PREFIX % message)
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
+        return message
 
     def cleanup(self):
         """cleanup
