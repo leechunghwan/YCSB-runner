@@ -2,7 +2,8 @@ import os
 
 from datetime import datetime
 
-from . import constants as const
+from .           import constants as const
+from .statistics import Statistics, StatisticsSet
 
 class DbSystem:
     # A list of required configuration fields
@@ -55,8 +56,7 @@ class DbSystem:
         """__tablenameify
         Replaces {TABLENAME} with the configured name of the YCSB+T table in
         the given list of strings
-
-        :param lst: List of strings within which {TABLENAME} should be subbed
+:param lst: List of strings within which {TABLENAME} should be subbed
         """
         return [s.replace("{TABLENAME}", self.tablename) for s in lst]
 
@@ -158,3 +158,13 @@ class DbSystem:
             subprocess.call(self.__tablenameify(CLEAN_COMMANDS['psql']))
         else:
             subprocess.call(self.__tablenameify(CLEAN_COMMANDS[self.dbname.lower()]))
+
+    @property
+    def stats(self):
+        """stats
+        An instance of stats.StatisticsSet to store YCSB+T output statistics for
+        this DBMS
+        """
+        if self.__stats is None:
+            self.__stats = StatisticsSet()
+        return self.__stats
