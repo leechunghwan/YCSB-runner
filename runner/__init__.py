@@ -3,3 +3,4 @@
 from .dbsystem import DbSystem
 from .config   import RunnerConfig
 from .stats    import Statistics, StatisticsSet
+from .runner   import Runner

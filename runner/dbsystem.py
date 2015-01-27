@@ -2,8 +2,8 @@ import os
 
 from datetime import datetime
 
-from .           import constants as const
-from .statistics import Statistics, StatisticsSet
+from .      import constants as const
+from .stats import Statistics, StatisticsSet
 
 class DbSystem:
     # A list of required configuration fields
