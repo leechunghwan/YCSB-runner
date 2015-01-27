@@ -95,7 +95,7 @@ class DbSystem:
             self.__logfile = open(lfpath, 'w')
         return self.__logfile
 
-    def log(self, message, lf=True):
+    def log(self, message, lf=True, mpl=None, trial=None):
         """log
         Logs the given message to the output log and STDOUT
         This should be used for messages specifically for the user to see.
@@ -104,8 +104,17 @@ class DbSystem:
 
         :param message: Message to be logged
         :param lf: Whether or not to write message to the logfile for this DB
+        :param mpl: The current MPL (will be displayed if set)
+        :param trial: The current trial number (will be displayed if set)
         """
-        message = str(message) # ensure message is a string
+        message = str(message)
+        # Add MPL and trial number if provided
+        if mpl is not None:
+            message = "(MPL=%s) %s" % (mpl, message)
+        if trial is not None:
+            message = "(Trial=%s) %s" % (trial, message)
+        # Prepend dbname to message for user reference
+        message = "[%s] %s" % (self.labelname, message)
         print(const.LOG_LINE_PREFIX % message)
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
