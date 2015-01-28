@@ -28,12 +28,18 @@ class Statistics:
     # Store stats attributes in __stats dict
     def __setattr__(self, name, value):
         if name in const.TRACKED_STATS:
+            # Ensure the type of the value matches what we expect
             if type(value) != type(const.TRACKED_STATS[name]()):
                 raise TypeError("Type mismatch: '%s' should be '%s', but was '%s'" %
                     (name, type(const.TRACKED_STATS[name]()).__name__, type(value).__name__))
             self.__stats[name] = value
         else:
             object.__setattr__(self, name, value)
+
+    def __getitem__(self, key):
+        if key in self.__stats:
+            return self.__stats[key]
+        raise KeyError(key)
 
     def __str__(self):
         return str(dict(self.__stats))
@@ -88,18 +94,26 @@ class StatisticsSet:
                 return f(name)
         raise AttributeError
 
-    def __getitem__(self, index):
+    def __getitem__(self, key):
         """__getitem__
         Implements index operator [] to get store Statistics instances
 
-        :param index: Index to retrieve
+        :param key: Index to retrieve (int), or name of an attribute (str)
         """
-        try:
-            return self.__stats[index]
-        # Custom error string to avoid confusion and avoid leaking internal
-        # implementation details
-        except IndexError:
-            raise IndexError("StatisticsSet index out of range")
+        if type(key) is int:
+            try:
+                return self.__stats[key]
+            # Custom error string to avoid confusion and avoid leaking internal
+            # implementation details
+            except IndexError:
+                raise IndexError("StatisticsSet index out of range")
+        elif type(key) is str:
+            try:
+                return getattr(self, key)
+            except AttributeError:
+                raise KeyError(key)
+        else:
+            raise TypeError("key must be an integer or string")
 
     def __len__(self):
         """__len__
