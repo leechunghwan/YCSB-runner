@@ -61,6 +61,17 @@ class Statistics:
         else:
             return None
 
+    def dict(self, *fields):
+        """dict
+        Returns a dictionary representing this Statistics object
+
+        :param *fields: Names of fields to be included in the returned dictionary
+        """
+        try:
+            return {field : getattr(self, field) for field in fields}
+        except TypeError:
+            raise TypeError("Statistics.dict(): field names must be strings")
+
 class StatisticsSet:
     """StatisticsSet: Stores a set of Statistics objects.
 
@@ -149,6 +160,18 @@ class StatisticsSet:
         A list of items stored in this StatisticsSet instance
         """
         return self.__stats
+
+    def getfields(self, *fields):
+        """getfields
+        Returns an unsorted iterable of dicts containing values for the given
+        fields.
+
+        :param *fields: Names of fields from each Statistics object to be
+        included in the returned output. These must be strings.
+        """
+        if len(fields) == 0:
+            raise TypeError("StatisticsSet.getfields expected at least 1 argument, got 0")
+        return map(lambda s: s.dict(*fields), self.items())
 
     def average(self, field):
         """average
