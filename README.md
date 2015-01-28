@@ -1,7 +1,7 @@
 # YCSB Runner
 
 YCSB Runner is a Python application for automatically running the Yahoo! Cloud
-System Benchmark (YCSB) tool.
+System Benchmark (YCSB) tool. I wrote this to collect data for a research project.
 
 ### Project Status
 
