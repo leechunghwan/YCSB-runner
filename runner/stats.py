@@ -171,7 +171,7 @@ class StatisticsSet:
         """
         if len(fields) == 0:
             raise TypeError("StatisticsSet.getfields expected at least 1 argument, got 0")
-        return map(lambda s: s.dict(*fields), self.items())
+        return list(map(lambda s: s.dict(*fields), self.items()))
 
     def average(self, field):
         """average
