@@ -1,6 +1,6 @@
 # Configuration from YCSB+T paper
 recordcount=10000
-operationcount=1000000
+operationcount=100000
 workload=com.yahoo.ycsb.workloads.ClosedEconomyWorkload
 totalcash=10000000
 
