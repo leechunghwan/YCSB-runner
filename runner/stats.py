@@ -76,7 +76,7 @@ class StatisticsSet:
     """StatisticsSet: Stores a set of Statistics objects.
 
     Averages can be accessed by prepending a Statistics field name with avg_
-        e.g. statset.avg_score
+        e.g. statset.avg_anomaly_score
         or   statset.avg_opcount
     """
     # The type of data we're storing here
@@ -157,7 +157,7 @@ class StatisticsSet:
 
     def items(self):
         """items
-        A list of items stored in this StatisticsSet instance
+        A list of Statistics instances stored in this StatisticsSet
         """
         return self.__stats
 
@@ -180,6 +180,8 @@ class StatisticsSet:
         :param field: Field to average
         """
         stats = self.getvalues(field)
+        if None in stats:
+            return None
         return sum(stats) / len(stats)
 
     def sum(self, field):
@@ -189,11 +191,13 @@ class StatisticsSet:
         :param field: Field to be summed
         """
         stats = self.getvalues(field)
+        if None in stats:
+            return None
         return sum(stats)
 
     def count(self, field):
         """count
-        Number of values stored in given field
+        Number of values stored in given field, including None values
 
         :param field: Field to count
         """
