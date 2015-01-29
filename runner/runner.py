@@ -35,9 +35,9 @@ class Runner:
         for db in self.dbs:
             self.__run_hooks("PRE_DB", db)
             for trial in range(1, db.trials + 1):
-                self.__run_hooks("PRE_TRIAL")
+                self.__run_hooks("PRE_TRIAL", trial, db)
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
-                    self.__run_hooks("PRE_MPL")
+                    self.__run_hooks("PRE_MPL", mpl, trial, db)
                     # Obvious; don't go above configured maximum MPL
                     if mpl > db.max_mpl:
                         break
@@ -55,8 +55,8 @@ class Runner:
                     stats.mpl = mpl
                     stats.trial = trial
                     db.stats.addstats(stats)
-                    self.__run_hooks("POST_MPL")
-                self.__run_hooks("POST_TRIAL")
+                    self.__run_hooks("POST_MPL", mpl, trial, db)
+                self.__run_hooks("POST_TRIAL", trial, db)
             db.log("Exporting run stats...")
             db.export_stats()
             db.cleanup() # ensure file handles are closed properly and don't leak
@@ -187,6 +187,7 @@ class Runner:
         :param location: Location name for the hooks to run.
         :param *args: Arguments to pass to each hook function.
         """
+        location = location.upper()
         if location in self.__hooks:
             for h in self.__hooks[location]:
                 h(*args)
