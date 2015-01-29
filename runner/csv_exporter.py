@@ -17,11 +17,10 @@ class CsvExporter(Exporter):
         df.groupby(key).mean().to_csv(filename)
 
     def export_averages_plot(self, filename, title, key, *fields):
-        plt.title(title)
         plt.figure()
         df = self.__dataframe(key, *fields).groupby(key).mean()
         df.plot()
-        # Plot with matplotlib.PyPlot, save image, and clear axes
+        plt.title(title)
         plt.savefig(filename)
         plt.clf()
 

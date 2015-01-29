@@ -97,7 +97,7 @@ class DbSystem:
         """
         if self.__logfile == None or self.__logfile.closed:
             lfpath = self.__makefpath("log-{}-{}.log")
-            self.__logfile = open(lfpath, 'w')
+            self.__logfile = open(lfpath, 'w', 1)
             print("OPENING LOG", lfpath)
         return self.__logfile
 
@@ -164,7 +164,8 @@ class DbSystem:
                 *const.TRACKED_STATS.keys())
         # Output averages plot if configured
         if self.output_plots:
-            exporter.export_averages_plot(file_plot, self.labelname,
+            exporter.export_averages_plot(file_plot, "{} {}".format(
+                self.labelname, self.__datestr),
                     self.plotkey, *self.plotfields)
 
     @property
