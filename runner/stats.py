@@ -23,7 +23,7 @@ class Statistics:
     def __getattr__(self, name):
         if name in self.__stats:
             return self.__stats[name]
-        raise AttributeError
+        raise AttributeError(name)
 
     # Store stats attributes in __stats dict
     def __setattr__(self, name, value):
