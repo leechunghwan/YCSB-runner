@@ -28,7 +28,6 @@ class Runner:
         # Now, process the config further, extracting DBMS names, options
         self.dbs = self.__process_sections()
 
-
     def run(self):
         for db in self.dbs:
             for trial in range(1, db.trials + 1):
@@ -51,6 +50,8 @@ class Runner:
                     stats.trial = trial
                     db.stats.addstats(stats)
             db.cleanup() # ensure file handles are closed properly and don't leak
+            db.log("Exporting run stats...")
+            db.export_stats()
 
     def __popen(self, cmd):
         """__popen
@@ -92,13 +93,13 @@ class Runner:
         config = {}
         for k, t in const.OPTION_KEYS.items():
             # Handle integer-valued keys
-            if type(t) is int:
+            if t is int:
                 config[k] = self.__config.getint(section, k)
             # Handle boolean-valued keys
-            elif type(t) is bool:
+            elif t is bool:
                 config[k] = self.__config.getboolean(section, k)
             # Handle string-valued keys
-            elif type(t) is str:
+            elif t is str:
                 config[k] = self.__config.get(section, k)
             elif callable(t):
                 config[k] = t(self.__config.get(section, k))

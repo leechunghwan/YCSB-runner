@@ -96,8 +96,7 @@ class DbSystem:
         A Python file object for the output logfile for this database
         """
         if self.__logfile == None or self.__logfile.closed:
-            lfname = "log-{}-{}.log".format(self.labelname, self.__datestr)
-            lfpath = os.path.join(self.outdirpath, lfname)
+            lfpath = self.__makefpath("log-{}-{}.log")
             self.__logfile = open(lfpath, 'w')
         return self.__logfile
 
@@ -136,6 +135,22 @@ class DbSystem:
         """
         if self.__logfile != None and not self.__logfile.closed:
             self.__logfile.close()
+
+    def export_stats(self):
+        exporter = const.SUPPORTED_OUTPUTS[self.output](self.stats)
+        file_output   = self.__makefpath("output-{}-{}.csv")
+        file_averages = self.__makefpath("averages-{}-{}.csv")
+        file_plot     = self.__makefpath("plot-{}-{}.pdf")
+        # Export averages
+        exporter.export_averages(file_averages, self.statskey,
+                *self.statsfields)
+        # Export all data
+        exporter.export(file_output, self.statskey,
+                *const.TRACKED_STATS.keys())
+        # Output averages plot if configured
+        if self.output_plots:
+            exporter.export_averages_plot(file_plot, self.statskey,
+                    *self.statsfields)
 
     @property
     def workload_path(self):
@@ -196,3 +211,9 @@ class DbSystem:
         if self.__stats is None:
             self.__stats = StatisticsSet()
         return self.__stats
+
+    def __makefname(self, fstr):
+        return fstr.format(self.labelname, self.__datestr)
+
+    def __makefpath(self, fstr):
+        return os.path.join(self.outdirpath, self.__makefname(fstr))
