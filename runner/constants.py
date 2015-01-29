@@ -1,9 +1,13 @@
 import re
 
+from .csv_exporter import CsvExporter
+
 ### OUTPUTS ########################################################
 
 # Supported output formats
-SUPPORTED_OUTPUTS = ['csv']
+SUPPORTED_OUTPUTS = {
+    'csv': CsvExporter,
+}
 ####################################################################
 
 ### DATABASES: #####################################################
