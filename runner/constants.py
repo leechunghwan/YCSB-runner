@@ -102,7 +102,9 @@ OPTION_KEYS = {
     'workload'    : str,
     'output_plots': bool,
     'statskey'    : str,
-    'statsfields' : lambda s: list(map(str.strip, s.split(',')))
+    'statsfields' : lambda s: list(map(str.strip, s.split(','))),
+    'plotkey'     : str,
+    'plotfields'  : lambda s: list(map(str.strip, s.split(','))),
 }
 
 # Specifies default values for options in the Runner configuration file
@@ -114,7 +116,9 @@ OPTION_DEFAULTS = {
     'output'      : 'csv',
     'output_plots': True,
     'statskey'    : 'mpl',
-    'statsfields' : 'anomaly_score',
+    'statsfields' : 'anomaly_score, runtime',
+    'plotkey'     : 'mpl',
+    'plotfields'  : 'anomaly_score',
 }
 ####################################################################
 

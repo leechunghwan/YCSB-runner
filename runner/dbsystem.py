@@ -149,8 +149,8 @@ class DbSystem:
                 *const.TRACKED_STATS.keys())
         # Output averages plot if configured
         if self.output_plots:
-            exporter.export_averages_plot(file_plot, self.statskey,
-                    *self.statsfields)
+            exporter.export_averages_plot(file_plot, self.labelname,
+                    self.plotkey, *self.plotfields)
 
     @property
     def workload_path(self):

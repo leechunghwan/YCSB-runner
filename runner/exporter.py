@@ -7,11 +7,12 @@ class Exporter:
         """
         self.stats_set = stats_set
 
-    def export(self, filename, *fields):
+    def export(self, filename, key, *fields):
         """export
         Exports the given fields to the given CSV file.
 
         :param filename: Filename and path for the export output
+        :param key: Key to use as index column
         :param *fields: Fields to be exported
         """
         raise NotImplementedError
