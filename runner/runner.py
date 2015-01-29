@@ -41,17 +41,17 @@ class Runner:
                     db.clean()
                     # Load data and run YCSB
                     db.log("Loading YCSB data...", mpl=mpl, trial=trial)
-                    self.__popen(db.cmd_ycsb_load())
+                    db.raw_log(self.__popen(db.cmd_ycsb_load()))
                     db.log("Running YCSB workload...", mpl=mpl, trial=trial)
                     # Run YCSB+T, log output, collect stats
-                    stats = Runner.extract_stats(self.__popen(db.cmd_ycsb_run(mpl)))
+                    stats = Runner.extract_stats(db.raw_log(self.__popen(db.cmd_ycsb_run(mpl))))
                     # Set the MPL and trial number in the stats row
                     stats.mpl = mpl
                     stats.trial = trial
                     db.stats.addstats(stats)
-            db.cleanup() # ensure file handles are closed properly and don't leak
             db.log("Exporting run stats...")
             db.export_stats()
+            db.cleanup() # ensure file handles are closed properly and don't leak
 
     def __popen(self, cmd):
         """__popen
@@ -68,8 +68,6 @@ class Runner:
             # If this doesn't hold then something is horribly wrong and we
             #   should abort mission
             assert type(stdout) is str
-            # Always print stdout back to stdout
-            print(stdout)
             return stdout
 
     def __process_sections(self):

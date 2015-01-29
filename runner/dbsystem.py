@@ -98,6 +98,7 @@ class DbSystem:
         if self.__logfile == None or self.__logfile.closed:
             lfpath = self.__makefpath("log-{}-{}.log")
             self.__logfile = open(lfpath, 'w')
+            print("OPENING LOG", lfpath)
         return self.__logfile
 
     def log(self, message, lf=True, mpl=None, trial=None):
@@ -124,6 +125,20 @@ class DbSystem:
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
         return message
+
+    def raw_log(self, string, stdout=True):
+        """raw_log
+        Log a raw string directly to the output file, and to stdout.
+
+        Returns the string passed in
+
+        :param string: Raw string to be logged
+        """
+        string = str(string)
+        print(string, file=self.logfile)
+        if stdout:
+            print(string)
+        return string
 
     def cleanup(self):
         """cleanup
