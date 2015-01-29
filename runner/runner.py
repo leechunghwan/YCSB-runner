@@ -31,10 +31,13 @@ class Runner:
         self.__hooks = {} if hooks is None else hooks
 
     def run(self):
+        self.__hooks("PRE_RUN")
         for db in self.dbs:
             self.__run_hooks("PRE_DB", db)
             for trial in range(1, db.trials + 1):
+                self.__run_hooks("PRE_TRIAL")
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
+                    self.__run_hooks("PRE_MPL")
                     # Obvious; don't go above configured maximum MPL
                     if mpl > db.max_mpl:
                         break
@@ -52,10 +55,13 @@ class Runner:
                     stats.mpl = mpl
                     stats.trial = trial
                     db.stats.addstats(stats)
+                    self.__run_hooks("POST_MPL")
+                self.__run_hooks("POST_TRIAL")
             db.log("Exporting run stats...")
             db.export_stats()
             db.cleanup() # ensure file handles are closed properly and don't leak
             self.__run_hooks("POST_DB", db)
+        self.__run_hooks("POST_RUN")
 
     def __popen(self, cmd):
         """__popen

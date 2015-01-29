@@ -7,6 +7,15 @@ def post_db(db):
     print("hook post_db: Finishing", db.labelname)
 
 HOOKS = {
-    "PRE_DB"  : [pre_db],
-    "POST_DB" : [post_db],
+    "PRE_DB"    : [pre_db],
+    "POST_DB"   : [post_db],
+
+    "PRE_RUN"   : [],
+    "POST_RUN"  : [],
+
+    "PRE_TRIAL" : [],
+    "POST_TRIAL": [],
+
+    "PRE_MPL"   : [],
+    "POST_MPL"  : [],
 }
