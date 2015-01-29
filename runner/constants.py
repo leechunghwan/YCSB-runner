@@ -101,6 +101,8 @@ OPTION_KEYS = {
     'output'      : lambda s: str(s).lower(),
     'workload'    : str,
     'output_plots': bool,
+    'statskey'    : str,
+    'statsfields' : lambda s: list(map(str.strip, s.split(',')))
 }
 
 # Specifies default values for options in the Runner configuration file
@@ -111,6 +113,8 @@ OPTION_DEFAULTS = {
     'inc_mpl'     : 4,
     'output'      : 'csv',
     'output_plots': True,
+    'statskey'    : 'mpl',
+    'statsfields' : 'anomaly_score',
 }
 ####################################################################
 
