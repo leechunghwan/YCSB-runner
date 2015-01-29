@@ -143,7 +143,7 @@ class Runner:
 
     @classmethod
     def extract_stats(cls, stdout):
-        """__extract_stats
+        """extract_stats
         Extracts statistics from the given YCSB+T output
 
         :param stdout: YCSB+T output from which statistics extraction should
