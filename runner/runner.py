@@ -13,10 +13,11 @@ from .dbsystem import DbSystem
 class Runner:
     """Runner: Makes Popen calls to run YCSB, collects output, extracts data
     from YCSB output, handles logging"""
-    def __init__(self, configpath):
+    def __init__(self, configpath, hooks=None):
         """__init__
 
         :param configpath: Path to YCSB Runner configuration file
+        :param hooks: A dictionary mapping hook names to lists of functions.
         """
         # Check that the configpath exists before reading it
         if not os.path.exists(configpath):
@@ -24,12 +25,14 @@ class Runner:
         # Read the config with Python's ConfigParser first
         self.__config = configparser.ConfigParser(defaults=const.OPTION_DEFAULTS)
         self.__config.read(configpath)
-
         # Now, process the config further, extracting DBMS names, options
         self.dbs = self.__process_sections()
+        # Load hooks
+        self.__hooks = {} if hooks is None else hooks
 
     def run(self):
         for db in self.dbs:
+            self.__run_hooks("PRE_DB", db)
             for trial in range(1, db.trials + 1):
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
                     # Obvious; don't go above configured maximum MPL
@@ -52,6 +55,7 @@ class Runner:
             db.log("Exporting run stats...")
             db.export_stats()
             db.cleanup() # ensure file handles are closed properly and don't leak
+            self.__run_hooks("POST_DB", db)
 
     def __popen(self, cmd):
         """__popen
@@ -169,3 +173,14 @@ class Runner:
         if res != None and len(res.groups()) > 0:
             return res.group(1)
         return None
+
+    def __run_hooks(self, location, *args):
+        """__run_hooks
+        Runs all hooks for the given hook location, passing in the given args.
+
+        :param location: Location name for the hooks to run.
+        :param *args: Arguments to pass to each hook function.
+        """
+        if location in self.__hooks:
+            for h in self.__hooks[location]:
+                h(*args)
