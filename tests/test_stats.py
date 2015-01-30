@@ -36,8 +36,8 @@ class StatisticsTestCase(unittest.TestCase):
         self.assertEqual(self.stats.totalcash, 1234.)
 
     def test_anomaly_score(self):
-        self.stats.totalcash = 123.
-        self.stats.countcash = 100.
+        self.stats.totalcash = 100.
+        self.stats.countcash = 123.
         self.stats.opcount   = 50.
         self.assertEqual(self.stats.anomaly_score, 0.46)
         self.stats.totalcash = 0.
@@ -53,3 +53,57 @@ class StatisticsTestCase(unittest.TestCase):
         self.stats.trial = 10
         self.assertEqual(self.stats.dict('mpl'), {'mpl': 5})
         self.assertEqual(self.stats.dict('mpl', 'trial'), {'mpl':5, 'trial':10})
+
+class StatisticsSetTestCase(unittest.TestCase):
+    def setUp(self):
+        self.stat1 = Statistics()
+        self.stat2 = Statistics()
+        self.ss = StatisticsSet(self.stat1, self.stat2)
+
+    def test_init(self):
+        ss = StatisticsSet()
+        self.assertEqual(ss.items(), [])
+        self.assertEqual(self.ss.items(), [self.stat1, self.stat2])
+
+    def test_getattr(self):
+        self.assertIsNone(self.ss.avg_anomaly_score)
+        self.assertEqual(self.ss.avg_runtime, 0.)
+        with self.assertRaises(AttributeError):
+            self.ss.__qwertyuiopasdfghjklzxcvbnm
+
+    def test_getitem(self):
+        self.assertIsInstance(self.ss[0], Statistics)
+        self.assertIsInstance(self.ss[1], Statistics)
+        self.assertEqual(self.ss[0], self.stat1)
+        self.assertEqual(self.ss[1], self.stat2)
+        self.assertEqual(self.ss['avg_runtime'], 0.)
+        with self.assertRaises(IndexError):
+            self.ss[100]
+        with self.assertRaises(KeyError):
+            self.ss['__qwertyuiopasdfghjklzxcvbnm']
+        with self.assertRaises(TypeError):
+            self.ss[object()]
+
+    def test_len(self):
+        ss = StatisticsSet(self.stat1, self.stat2, self.stat1)
+        self.assertEqual(len(self.ss), 2)
+        self.assertEqual(len(ss), 3)
+
+    def test_getfields(self):
+        self.assertEqual(self.ss.getfields('mpl'), [{'mpl': 0.}, {'mpl': 0.}])
+
+    def test_average(self):
+        stat1 = Statistics(mpl=2)
+        stat2 = Statistics(mpl=4)
+        ss = StatisticsSet(stat1, stat2)
+        self.assertEqual(ss.average('mpl'), 3)
+
+    def test_sum(self):
+        stat1 = Statistics(mpl=2)
+        stat2 = Statistics(mpl=4)
+        ss = StatisticsSet(stat1, stat2)
+        self.assertEqual(ss.sum('mpl'), 6)
+
+    def test_getvalues(self):
+        self.assertEqual(self.ss.getvalues('mpl'),
+             [const.TRACKED_STATS['mpl']() for x in range(len(self.ss))])
