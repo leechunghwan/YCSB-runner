@@ -37,13 +37,18 @@ def noattr(obj):
 
 def weirdtype():
     """weirdtype
-    Generates a weird type for use in testing TypeErrors
+    Returns a weird type for use in testing TypeErrors
     """
     class WeirdType:
         pass
     return WeirdType()
 
 def hasattrs(obj, *attrs):
+    """hasattrs
+    Returns True if obj has all given attributes (implemented with hasattr())
+    :param obj: Object to check
+    :param *attrs: Attributes to check for on obj
+    """
     for attr in attrs:
         if not hasattr(obj, attr):
             return False
