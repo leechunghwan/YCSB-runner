@@ -92,7 +92,6 @@ class StatisticsSet:
         self.__MAGIC_ATTR_PREFIX_MAP = {
             "avg_": self.average,
             "sum_": self.sum,
-            "num_": self.count,
         }
         self.__stats = []
         self.addstats(*args)
@@ -194,15 +193,6 @@ class StatisticsSet:
         if None in stats:
             return None
         return sum(stats)
-
-    def count(self, field):
-        """count
-        Number of values stored in given field, including None values
-
-        :param field: Field to count
-        """
-        stats = self.getvalues(field)
-        return len(stats)
 
     def getvalues(self, field):
         """getvalues
