@@ -138,6 +138,7 @@ STAT_REGEXPS = {
 }
 
 # Mappings of tracked statistics to their Python types
+# These Python types should be numerical, i.e. float, int, long
 # Note: Only statistics listed here will be stored by the Statistics class
 TRACKED_STATS = {
     'totalcash'  : float, # From YCSB output
