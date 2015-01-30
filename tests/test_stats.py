@@ -58,6 +58,7 @@ class StatisticsTestCase(unittest.TestCase):
 
 class StatisticsSetTestCase(unittest.TestCase):
     def setUp(self):
+        self.statitem1, = get(const.TRACKED_STATS.items(), 1)
         self.stat1 = Statistics()
         self.stat2 = Statistics()
         self.ss = StatisticsSet(self.stat1, self.stat2)
@@ -69,7 +70,7 @@ class StatisticsSetTestCase(unittest.TestCase):
 
     def test_getattr(self):
         self.assertIsNone(self.ss.avg_anomaly_score)
-        self.assertEqual(self.ss.avg_runtime, 0.)
+        self.assertEqual(getattr(self.ss, 'avg_' + self.statitem1[0]), 0.)
         with self.assertRaises(AttributeError):
             getattr(self.ss, noattr(self.ss))
 
@@ -78,11 +79,11 @@ class StatisticsSetTestCase(unittest.TestCase):
         self.assertIsInstance(self.ss[1], Statistics)
         self.assertEqual(self.ss[0], self.stat1)
         self.assertEqual(self.ss[1], self.stat2)
-        self.assertEqual(self.ss['avg_runtime'], 0.)
+        self.assertEqual(self.ss['avg_' + self.statitem1[0]], 0.)
         with self.assertRaises(IndexError):
             self.ss[100]
         with self.assertRaises(KeyError):
-            self.ss['__qwertyuiopasdfghjklzxcvbnm']
+            self.ss[noattr(self.ss)]
         with self.assertRaises(TypeError):
             self.ss[object()]
 
@@ -92,20 +93,26 @@ class StatisticsSetTestCase(unittest.TestCase):
         self.assertEqual(len(ss), 3)
 
     def test_getfields(self):
-        self.assertEqual(self.ss.getfields('mpl'), [{'mpl': 0.}, {'mpl': 0.}])
+        self.assertEqual(self.ss.getfields(self.statitem1[0]),
+                [{self.statitem1[0]: self.statitem1[1]()},
+                 {self.statitem1[0]: self.statitem1[1]()}])
 
     def test_average(self):
-        stat1 = Statistics(mpl=2)
-        stat2 = Statistics(mpl=4)
+        kwarg_map1 = {self.statitem1[0]: self.statitem1[1]() + 2}
+        kwarg_map2 = {self.statitem1[0]: self.statitem1[1]() + 4}
+        stat1 = Statistics(**kwarg_map1)
+        stat2 = Statistics(**kwarg_map2)
         ss = StatisticsSet(stat1, stat2)
-        self.assertEqual(ss.average('mpl'), 3)
+        self.assertEqual(ss.average(self.statitem1[0]), 3)
 
     def test_sum(self):
-        stat1 = Statistics(mpl=2)
-        stat2 = Statistics(mpl=4)
+        kwarg_map1 = {self.statitem1[0]: self.statitem1[1]() + 2}
+        kwarg_map2 = {self.statitem1[0]: self.statitem1[1]() + 4}
+        stat1 = Statistics(**kwarg_map1)
+        stat2 = Statistics(**kwarg_map2)
         ss = StatisticsSet(stat1, stat2)
-        self.assertEqual(ss.sum('mpl'), 6)
+        self.assertEqual(ss.sum(self.statitem1[0]), 6)
 
     def test_getvalues(self):
-        self.assertEqual(self.ss.getvalues('mpl'),
-             [const.TRACKED_STATS['mpl']() for x in range(len(self.ss))])
+        self.assertEqual(self.ss.getvalues(self.statitem1[0]),
+             [const.TRACKED_STATS[self.statitem1[0]]() for x in range(len(self.ss))])
