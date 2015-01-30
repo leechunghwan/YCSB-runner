@@ -1,5 +1,7 @@
 import unittest
 
+from .helpers import *
+
 import runner.constants as const
 from runner.stats import Statistics, StatisticsSet
 
@@ -23,11 +25,11 @@ class StatisticsTestCase(unittest.TestCase):
 
     def test_unexpected_init(self):
         with self.assertRaises(AttributeError):
-            Statistics(__qwertyuiopasdfghjklzxcvbnm='foobar')
+            Statistics(**{noattr(Statistics()): 'foobar'})
 
     def test_getattr(self):
         with self.assertRaises(AttributeError):
-            self.stats.__qwertyuiopasdfghjklzxcvbnm
+            getattr(self.stats, noattr(self.stats))
 
     def test_setattr(self):
         with self.assertRaises(TypeError):
@@ -69,7 +71,7 @@ class StatisticsSetTestCase(unittest.TestCase):
         self.assertIsNone(self.ss.avg_anomaly_score)
         self.assertEqual(self.ss.avg_runtime, 0.)
         with self.assertRaises(AttributeError):
-            self.ss.__qwertyuiopasdfghjklzxcvbnm
+            getattr(self.ss, noattr(self.ss))
 
     def test_getitem(self):
         self.assertIsInstance(self.ss[0], Statistics)
