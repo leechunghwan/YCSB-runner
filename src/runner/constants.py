@@ -115,7 +115,7 @@ OPTION_DEFAULTS = {
     'max_mpl'     : 25,
     'inc_mpl'     : 4,
     'output'      : 'csv',
-    'output_dir'  : '../output',
+    'output_dir'  : 'output',
     'output_plots': True,
     'statskey'    : 'mpl',
     'statsfields' : 'anomaly_score, runtime',
