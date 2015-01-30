@@ -1,5 +1,5 @@
 # This file contains example/dummy hooks for each possible hook location
-# For documentation, see https://github.com/benjaminbrent/YCSB-runner/wiki
+# For documentation, see https://github.com/benjaminbrent/YCSB-runner/wiki/Custom-Hooks
 
 def pre_run():
     print("hook pre_run: Starting run")
