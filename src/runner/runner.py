@@ -31,7 +31,7 @@ class Runner:
         self.__hooks = {} if hooks is None else hooks
 
     def run(self):
-        self.__hooks("PRE_RUN")
+        self.__run_hooks("PRE_RUN")
         for db in self.dbs:
             self.__run_hooks("PRE_DB", db)
             for trial in range(1, db.trials + 1):
