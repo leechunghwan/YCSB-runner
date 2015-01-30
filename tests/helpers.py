@@ -34,3 +34,17 @@ def noattr(obj):
     while attr is None or hasattr(obj, attr):
         attr = "__test_{}".format(str(time()).replace('.', ''))
     return attr
+
+def weirdtype():
+    """weirdtype
+    Generates a weird type for use in testing TypeErrors
+    """
+    class WeirdType:
+        pass
+    return WeirdType()
+
+def hasattrs(obj, *attrs):
+    for attr in attrs:
+        if not hasattr(obj, attr):
+            return False
+    return True

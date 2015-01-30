@@ -8,6 +8,7 @@ from runner.stats import Statistics, StatisticsSet
 class StatisticsTestCase(unittest.TestCase):
     def setUp(self):
         self.stats = Statistics()
+        self.statitem1, self.statitem2 = get(const.TRACKED_STATS.items(), 2)
 
     def test_init_values(self):
         initvals = {k: const.TRACKED_STATS[k]() for k in const.TRACKED_STATS}
@@ -33,28 +34,34 @@ class StatisticsTestCase(unittest.TestCase):
 
     def test_setattr(self):
         with self.assertRaises(TypeError):
-            self.stats.totalcash = 'foobar'
-        self.stats.totalcash = 1234.
-        self.assertEqual(self.stats.totalcash, 1234.)
+            setattr(self.stats, self.statitem1[0], weirdtype())
+        setattr(self.stats, self.statitem1[0], self.statitem1[1]() + 1234)
+        self.assertEqual(getattr(self.stats, self.statitem1[0]), 1234)
 
     def test_anomaly_score(self):
-        self.stats.totalcash = 100.
-        self.stats.countcash = 123.
-        self.stats.opcount   = 50.
-        self.assertEqual(self.stats.anomaly_score, 0.46)
-        self.stats.totalcash = 0.
-        self.stats.countcash = 0.
-        self.assertEqual(self.stats.anomaly_score, 0.)
-        self.stats.opcount = 0.
-        self.assertIsNone(self.stats.anomaly_score)
+        if hasattrs(self.stats, 'totalcash', 'countcash', 'opcount'):
+            self.stats.totalcash = 100.
+            self.stats.countcash = 123.
+            self.stats.opcount   = 50.
+            self.assertEqual(self.stats.anomaly_score, 0.46)
+            self.stats.totalcash = 0.
+            self.stats.countcash = 0.
+            self.assertEqual(self.stats.anomaly_score, 0.)
+            self.stats.opcount = 0.
+            self.assertIsNone(self.stats.anomaly_score)
 
     def test_dict(self):
         with self.assertRaises(TypeError):
-            self.stats.dict(1,2,3)
-        self.stats.mpl = 5
-        self.stats.trial = 10
-        self.assertEqual(self.stats.dict('mpl'), {'mpl': 5})
-        self.assertEqual(self.stats.dict('mpl', 'trial'), {'mpl':5, 'trial':10})
+            self.stats.dict(weirdtype(), weirdtype(), weirdtype())
+        setattr(self.stats, self.statitem1[0], self.statitem1[1]() + 5)
+        setattr(self.stats, self.statitem2[0], self.statitem2[1]() + 10)
+        self.assertEqual(self.stats.dict(self.statitem1[0]), {
+            self.statitem1[0]: self.statitem1[1]() + 5
+        })
+        self.assertEqual(self.stats.dict(self.statitem1[0], self.statitem2[0]), {
+            self.statitem1[0]: self.statitem1[1]() + 5,
+            self.statitem2[0]: self.statitem2[1]() + 10,
+        })
 
 class StatisticsSetTestCase(unittest.TestCase):
     def setUp(self):
