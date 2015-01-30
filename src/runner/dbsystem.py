@@ -10,7 +10,8 @@ class DbSystem:
     # A list of required configuration fields
     __REQUIRED_FIELDS = [
         'trials' , 'min_mpl' , 'max_mpl',
-        'inc_mpl', 'workload'
+        'inc_mpl', 'workload', 'output',
+        'output_dir'
     ]
 
     def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
@@ -82,7 +83,7 @@ class DbSystem:
         Name and path to the directory for output for this DBMS
         """
         if self.__outdir == None:
-            self.__outdir = os.path.join(".", "output", self.__datestr +
+            self.__outdir = os.path.join(".", self.output_dir, self.__datestr +
                     "-{}".format(self.labelname))
         # Make the output dir if it doesn't exist, since we might as well do
         #   this ASAP
