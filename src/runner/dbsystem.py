@@ -83,7 +83,7 @@ class DbSystem:
         Name and path to the directory for output for this DBMS
         """
         if self.__outdir == None:
-            self.__outdir = os.path.join(".", self.output_dir, self.__datestr +
+            self.__outdir = os.path.join(os.getcwd(), self.output_dir, self.__datestr +
                     "-{}".format(self.labelname))
         # Make the output dir if it doesn't exist, since we might as well do
         #   this ASAP
