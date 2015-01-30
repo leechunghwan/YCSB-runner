@@ -5,7 +5,8 @@ import sys
 from runner import Runner
 
 # Import hooks.py if it exists
-if os.path.exists('hooks.py'):
+if os.path.exists(os.path.join(
+       os.path.dirname(os.path.realpath(__file__)), 'hooks.py')):
     try:
         from hooks import HOOKS
     except ImportError:
