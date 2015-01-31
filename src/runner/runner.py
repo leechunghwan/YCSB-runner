@@ -41,12 +41,12 @@ class Runner:
             copyfile(db.workload_path, db.makefpath("workload-{}-{}"))
             for trial in range(1, db.trials + 1):
                 self.__run_hooks("PRE_TRIAL", trial, db)
+                db.log("Starting trial %i..." % (trial), mpl=mpl, trial=trial)
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):
                     self.__run_hooks("PRE_MPL", mpl, trial, db)
                     # Obvious; don't go above configured maximum MPL
                     if mpl > db.max_mpl:
                         break
-                    db.log("Starting trial %i..." % (trial), mpl=mpl, trial=trial)
                     # Clean the database
                     db.log("Cleaning the database...", mpl=mpl, trial=trial)
                     db.clean()
