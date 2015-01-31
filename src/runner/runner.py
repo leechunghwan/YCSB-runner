@@ -29,11 +29,16 @@ class Runner:
         self.dbs = self.__process_sections()
         # Load hooks
         self.__hooks = {} if hooks is None else hooks
+        # We need this in order to copy the file across to the output dir
+        self.__configpath = configpath
 
     def run(self):
         self.__run_hooks("PRE_RUN")
         for db in self.dbs:
             self.__run_hooks("PRE_DB", db)
+            # Copy config files to output dir
+            copyfile(self.__configpath, db.makefpath("config-{}-{}.ini"))
+            copyfile(db.workload_path, db.makefpath("workload-{}-{}"))
             for trial in range(1, db.trials + 1):
                 self.__run_hooks("PRE_TRIAL", trial, db)
                 for mpl in count(start=db.min_mpl, step=db.inc_mpl):

@@ -97,7 +97,7 @@ class DbSystem:
         A Python file object for the output logfile for this database
         """
         if self.__logfile == None or self.__logfile.closed:
-            lfpath = self.__makefpath("log-{}-{}.log")
+            lfpath = self.makefpath("log-{}-{}.log")
             self.__logfile = open(lfpath, 'w', 1)
             print("OPENING LOG", lfpath)
         return self.__logfile
@@ -154,9 +154,9 @@ class DbSystem:
 
     def export_stats(self):
         exporter = const.SUPPORTED_OUTPUTS[self.output](self.stats)
-        file_output   = self.__makefpath("output-{}-{}.csv")
-        file_averages = self.__makefpath("averages-{}-{}.csv")
-        file_plot     = self.__makefpath("plot-{}-{}.pdf")
+        file_output   = self.makefpath("output-{}-{}.csv")
+        file_averages = self.makefpath("averages-{}-{}.csv")
+        file_plot     = self.makefpath("plot-{}-{}.pdf")
         # Export averages
         exporter.export_averages(file_averages, self.statskey,
                 *self.statsfields)
@@ -232,5 +232,5 @@ class DbSystem:
     def __makefname(self, fstr):
         return fstr.format(self.labelname, self.__datestr)
 
-    def __makefpath(self, fstr):
+    def makefpath(self, fstr):
         return os.path.join(self.outdirpath, self.__makefname(fstr))
