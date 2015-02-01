@@ -250,6 +250,6 @@ class DbSystem:
         Maps a YCSB-runner database name to the name used by YCSB (uses simple
         lookup in const.SUPPORTED_DBS)
         """
-        if const.SUPPPORTED_DBS[runner_dbname] != None:
-            return const.SUPPPORTED_DBS[runner_dbname]
+        if const.SUPPORTED_DBS[runner_dbname] != None:
+            return const.SUPPORTED_DBS[runner_dbname]
         return runner_dbname
