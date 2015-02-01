@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 
 from datetime import datetime
@@ -183,7 +184,7 @@ class DbSystem:
         return [
             "ycsb",
             "load",
-            self.dbname,
+            self.__ycsb_dbname(self.dbname),
             "-P",
             self.workload_path,
             "-s",
@@ -198,7 +199,7 @@ class DbSystem:
         return [
             "ycsb",
             "run",
-            self.dbname,
+            self.__ycsb_dbname(self.dbname),
             "-P",
             self.workload_path,
             "-s",
@@ -213,11 +214,12 @@ class DbSystem:
 
         This should be called BEFORE the DB is processed
         """
-        if self.dbname.lower() == "jdbc":
-            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS['mysql']))
-            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS['psql']))
-        else:
-            subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS[self.dbname.lower()]))
+        excode = subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS[self.dbname.lower()]))
+        # We don't want to continue if cleaning the DB failed (see #7)
+        if excode != 0:
+            raise RuntimeError("Error: db.clean() did not complete " +
+                "successfully for DB %s" % self.dbname.lower())
+        return excode
 
     @property
     def stats(self):
@@ -229,8 +231,25 @@ class DbSystem:
             self.__stats = StatisticsSet()
         return self.__stats
 
+
+    def makefpath(self, fstr):
+        """makefpath
+        Given a filename containing two format string spaces ({} {}), returns
+        the full path to that file in the output directory, inserting the
+        database name and timestamp into the format string spaces.
+
+        :param fstr: A format string to become the name of an output file.
+        """
+        return os.path.join(self.outdirpath, self.__makefname(fstr))
+
     def __makefname(self, fstr):
         return fstr.format(self.labelname, self.__datestr)
 
-    def makefpath(self, fstr):
-        return os.path.join(self.outdirpath, self.__makefname(fstr))
+    def __ycsb_dbname(self, runner_dbname):
+        """__ycsb_dbname
+        Maps a YCSB-runner database name to the name used by YCSB (uses simple
+        lookup in const.SUPPORTED_DBS)
+        """
+        if const.SUPPPORTED_DBS[runner_dbname] != None:
+            return const.SUPPPORTED_DBS[runner_dbname]
+        return runner_dbname

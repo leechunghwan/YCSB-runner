@@ -13,12 +13,17 @@ SUPPORTED_OUTPUTS = {
 ### DATABASES: #####################################################
 
 # Supported database systems
-SUPPORTED_DBS = [
-    'jdbc',
-    'mongodb',
-    'redis',
-    'cassandra-10',
-]
+# The runner can use different names to YCSB, provided this mapping correctly
+# maps the name used by the runner to the name used by YCSB. This might be
+# desirable, for example, to distinguish two different DBMSes using the same
+# YCSB implementation (e.g. MySQL and PostgreSQL, which both use JDBC)
+SUPPORTED_DBS = {
+    'jdbc-mysql'    : 'jdbc',
+    'jdbc-postgres' : 'jdbc',
+    'mongodb'       :  None,
+    'redis'         :  None,
+    'cassandra-10'  :  None,
+}
 
 # The default table name to use if not specified in runner config file
 DEFAULT_TABLENAME = "usertable"
@@ -37,7 +42,7 @@ RE_DBNAME_LABEL = re.compile(r"(:[A-Za-z0-9_-]+$)")
 # NOTE: PostgreSQL requires the database user password to be specified in a
 # .pgpass file in the user's home directory
 CLEAN_COMMANDS = {
-    'mysql': [
+    'jdbc-mysql': [
         "mysql",
         "-u",
         "ycsb",
@@ -46,7 +51,7 @@ CLEAN_COMMANDS = {
         "TRUNCATE TABLE {TABLENAME};",
         "ycsb"
     ],
-    'psql': [
+    'jdbc-postgres': [
         "psql",
         "--host",
         "localhost",
