@@ -235,7 +235,6 @@ class DbSystem:
             self.__stats = StatisticsSet()
         return self.__stats
 
-
     def makefpath(self, fstr):
         """makefpath
         Given a filename containing two format string spaces ({} {}), returns

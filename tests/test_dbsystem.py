@@ -7,7 +7,7 @@ from .helpers import *
 
 import runner.constants as const
 from runner.dbsystem import DbSystem
-from runner.stats    import Statistics
+from runner.stats    import Statistics, StatisticsSet
 
 class DbSystemTestCase(unittest.TestCase):
     def setUp(self):
@@ -15,8 +15,13 @@ class DbSystemTestCase(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.__real_cwd = os.getcwd()
         os.chdir(self.tempdir.name)
+        # Insert some sneaky values into const for test purposes (shh!)
+        const.SUPPORTED_DBS['foobardb'] = 'foobar'
+        const.SUPPORTED_DBS['barfoodb'] = None
+        const.CLEAN_COMMANDS['foobardb'] = ['false']
+        const.CLEAN_COMMANDS['barfoodb'] = ['true']
         # Set up the DbSystem instance
-        self.dbname = getone(const.SUPPORTED_DBS.keys())
+        self.dbname = 'foobardb'
         self.db = DbSystem(self.dbname, {
             'trials': 1,
             'min_mpl': 1,
@@ -119,19 +124,41 @@ class DbSystemTestCase(unittest.TestCase):
         self.assertTrue(len(os.listdir(self.db.outdirpath)) == 3)
 
     def test_workload_path(self):
-        pass
+        # Ensure workload path is in CWD
+        self.assertEqual(os.path.dirname(self.db.workload_path), os.getcwd())
+        # Test the workload name we gave in setUp()
+        self.assertTrue(self.db.workload_path.endswith("foo"))
 
     def test_cmd_ycsb_load(self):
-        pass
+        self.assertEqual(self.db.dbname, 'foobardb')
+        self.assertTrue('foobar' in self.db.cmd_ycsb_load())
+        self.db.dbname = 'barfoodb'
+        self.assertTrue('barfoodb' in self.db.cmd_ycsb_load())
+        self.assertTrue(self.db.workload_path in self.db.cmd_ycsb_load())
 
     def test_cmd_ycsb_run(self):
-        pass
+        self.assertEqual(self.db.dbname, 'foobardb')
+        self.assertTrue('foobar' in self.db.cmd_ycsb_run(123456789))
+        self.db.dbname = 'barfoodb'
+        self.assertTrue('barfoodb' in self.db.cmd_ycsb_run(123456789))
+        self.assertTrue(self.db.workload_path in self.db.cmd_ycsb_run(123456789))
+        self.assertTrue('123456789' in self.db.cmd_ycsb_run(123456789))
+        self.assertTrue('987654321' in self.db.cmd_ycsb_run(987654321))
 
+    # Note: this probably only passes when running on Unix-compliant systems
+    # due to its reliance on the true and false commands
     def test_clean(self):
-        pass
+        self.assertEqual(self.db.dbname, 'foobardb')
+        with self.assertRaises(RuntimeError):
+            self.db.clean()
+        self.db.dbname = 'barfoodb'
+        self.assertEqual(self.db.clean(), 0)
 
     def test_stats(self):
-        pass
+        self.assertTrue(isinstance(self.db.stats, StatisticsSet))
+        self.assertEqual(self.db.stats, self.db._DbSystem__stats)
 
     def test_makefpath(self):
-        pass
+        path = self.db.makefpath("test-file-{}-{}")
+        self.assertTrue(os.path.basename(path).startswith("test-file-"))
+        self.assertEqual(os.path.dirname(path), self.db.outdirpath)
