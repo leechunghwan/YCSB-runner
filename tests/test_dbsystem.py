@@ -25,12 +25,15 @@ class DbSystemTestCase(unittest.TestCase):
             'output_dir': 'output',
         })
         # We don't want any stdout, so redirect to null device (/dev/null)
+        self.__real_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
 
     def tearDown(self):
         self.db.cleanup()
         self.tempdir.cleanup()
+        # Close /dev/null and re-assign stdout back to the real stdout
         sys.stdout.close()
+        sys.stdout = self.__real_stdout
 
     def test_getattr(self):
         self.assertEqual(self.db.trials, 1)
