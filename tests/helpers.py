@@ -25,6 +25,13 @@ def getlist(iterable, n):
     """
     return [x for x in get(iterable, n)]
 
+def getone(iterable):
+    """getone
+    Returns one item from the given iterable
+    """
+    x, = getlist(iterable, 1)
+    return x
+
 def noattr(obj):
     """noattr
     Returns a string representing an attribute name which does not exist on
