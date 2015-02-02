@@ -48,7 +48,7 @@ class StatisticsTestCase(unittest.TestCase):
             self.stats.countcash = 0.
             self.assertEqual(self.stats.anomaly_score, 0.)
             self.stats.opcount = 0.
-            self.assertIsNone(self.stats.anomaly_score)
+            self.assertEqual(self.stats.anomaly_score, 0.)
 
     def test_dict(self):
         with self.assertRaises(TypeError):
@@ -76,7 +76,7 @@ class StatisticsSetTestCase(unittest.TestCase):
         self.assertEqual(self.ss.items(), [self.stat1, self.stat2])
 
     def test_getattr(self):
-        self.assertIsNone(self.ss.avg_anomaly_score)
+        self.assertEqual(self.ss.avg_anomaly_score, 0.)
         self.assertEqual(getattr(self.ss, 'avg_' + self.statitem1[0]), 0.)
         with self.assertRaises(AttributeError):
             getattr(self.ss, noattr(self.ss))

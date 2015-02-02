@@ -58,8 +58,7 @@ class Statistics:
         """
         if self.opcount > 0:
             return float(abs(self.totalcash - self.countcash) / self.opcount)
-        else:
-            return None
+        return 0.
 
     def dict(self, *fields):
         """dict
