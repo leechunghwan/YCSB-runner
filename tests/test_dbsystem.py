@@ -7,11 +7,13 @@ from .helpers import *
 
 import runner.constants as const
 from runner.dbsystem import DbSystem
+from runner.stats    import Statistics
 
 class DbSystemTestCase(unittest.TestCase):
     def setUp(self):
         # Set the working directory to some temp dir
         self.tempdir = tempfile.TemporaryDirectory()
+        self.__real_cwd = os.getcwd()
         os.chdir(self.tempdir.name)
         # Set up the DbSystem instance
         self.dbname = getone(const.SUPPORTED_DBS.keys())
@@ -23,10 +25,16 @@ class DbSystemTestCase(unittest.TestCase):
             'workload': 'foo',
             'output': 'csv',
             'output_dir': 'output',
+            'statskey': 'mpl',
+            'statsfields': ['runtime'],
+            'plotkey': 'mpl',
+            'plotfields': ['runtime'],
         })
         # We don't want any stdout, so redirect to null device (/dev/null)
         self.__real_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
+        # Change CWD back to real CWD
+        os.chdir(self.__real_cwd)
 
     def tearDown(self):
         self.db.cleanup()
@@ -93,7 +101,22 @@ class DbSystemTestCase(unittest.TestCase):
         self.assertTrue("TestFoobar" in cts)
 
     def test_export_stats(self):
-        pass
+        self.db.stats.addstats(Statistics(mpl=1, runtime=3.),
+                Statistics(mpl=2, runtime=6.))
+        self.db.output_plots = False
+        self.assertFalse(self.db.output_plots)
+        self.assertTrue(len(os.listdir(self.db.outdirpath)) == 0)
+        self.db.export_stats()
+        self.assertTrue(len(os.listdir(self.db.outdirpath)) == 2)
+
+    def test_export_stats_and_plots(self):
+        self.db.stats.addstats(Statistics(mpl=1, runtime=5.),
+                Statistics(mpl=2, runtime=8.))
+        self.db.output_plots = True
+        self.assertTrue(self.db.output_plots)
+        self.assertTrue(len(os.listdir(self.db.outdirpath)) == 0)
+        self.db.export_stats()
+        self.assertTrue(len(os.listdir(self.db.outdirpath)) == 3)
 
     def test_workload_path(self):
         pass

@@ -10,9 +10,10 @@ from .stats import Statistics, StatisticsSet
 class DbSystem:
     # A list of required configuration fields
     __REQUIRED_FIELDS = [
-        'trials' , 'min_mpl' , 'max_mpl',
-        'inc_mpl', 'workload', 'output',
-        'output_dir'
+        'trials'    , 'min_mpl'   , 'max_mpl',
+        'inc_mpl'   , 'workload'  , 'output',
+        'output_dir', 'statskey'  , 'statsfields',
+        'plotkey'   , 'plotfields',
     ]
 
     def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
