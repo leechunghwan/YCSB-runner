@@ -87,7 +87,6 @@ class Runner:
 
     def __process_sections(self):
         """__process_sections
-
         Processes each section in the config file,
         populating this object with corresponding DbSystem instances
         """
@@ -99,7 +98,6 @@ class Runner:
 
     def __process_config_keys(self, section):
         """__process_config_keys
-
         :param section: Name of section from runner config file for which
         k=v options should be processed
         """
@@ -122,12 +120,12 @@ class Runner:
 
     def __process_dbs(self, section, config):
         """__process_dbs
-
         Creates DbSystem instances with their corresponding configurations for
         each DBMS in the runner config
 
-        :param section:
-        :param config:
+        :param section: Section string from Python configparser sections
+        :param config: Dict of key -> value mappings from parsed config
+            sections (e.g. output of __process_config_keys)
         """
         # Section headings may contain multiple DB names, CSV format
         section = [s.strip() for s in section.split(',')]
