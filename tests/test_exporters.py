@@ -37,24 +37,24 @@ class CsvExporterTestCase(unittest.TestCase):
 
     def test_export(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'export.csv')
-            self.assertFalse(os.path.exists(fname))
+            fname = os.path.join(tmpdirname, 'export')
+            self.assertFalse(os.path.exists(fname + CsvExporter.FILE_EXT))
             self.exp.export(fname, self.statkey1, self.statkey2)
-            self.assertTrue(os.path.exists(fname))
-            self.assertTrue(os.stat(fname).st_size > 0)
+            self.assertTrue(os.path.exists(fname + CsvExporter.FILE_EXT))
+            self.assertTrue(os.stat(fname + CsvExporter.FILE_EXT).st_size > 0)
 
     def test_export_averages(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'averages.csv')
-            self.assertFalse(os.path.exists(fname))
+            fname = os.path.join(tmpdirname, 'averages')
+            self.assertFalse(os.path.exists(fname + CsvExporter.FILE_EXT))
             self.exp.export_averages(fname, self.statkey1, self.statkey2)
-            self.assertTrue(os.path.exists(fname))
-            self.assertTrue(os.stat(fname).st_size > 0)
+            self.assertTrue(os.path.exists(fname + CsvExporter.FILE_EXT))
+            self.assertTrue(os.stat(fname + CsvExporter.FILE_EXT).st_size > 0)
 
     def test_export_averages_plot(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'plot.pdf')
-            self.assertFalse(os.path.exists(fname))
-            self.exp.export(fname, 'testplot', self.statkey1, self.statkey2)
-            self.assertTrue(os.path.exists(fname))
-            self.assertTrue(os.stat(fname).st_size > 0)
+            fname = os.path.join(tmpdirname, 'plot')
+            self.assertFalse(os.path.exists(fname + CsvExporter.PLOTS_FILE_EXT))
+            self.exp.export_averages_plot(fname, 'testplot', self.statkey1, self.statkey2)
+            self.assertTrue(os.path.exists(fname + CsvExporter.PLOTS_FILE_EXT))
+            self.assertTrue(os.stat(fname + CsvExporter.PLOTS_FILE_EXT).st_size > 0)

@@ -1,4 +1,8 @@
 class Exporter:
+    # Extensions for output files
+    FILE_EXT       = ".txt"
+    PLOTS_FILE_EXT = ".pdf"
+
     """Exporter: Exports statistical data captured from YCSB output to a file."""
     def __init__(self, stats_set):
         """__init__

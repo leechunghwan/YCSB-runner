@@ -154,10 +154,13 @@ class DbSystem:
             self.__logfile.close()
 
     def export_stats(self):
+        """export_stats
+        Writes output to the
+        """
         exporter = const.SUPPORTED_OUTPUTS[self.output](self.stats)
-        file_output   = self.makefpath("output-{}-{}.csv")
-        file_averages = self.makefpath("averages-{}-{}.csv")
-        file_plot     = self.makefpath("plot-{}-{}.pdf")
+        file_output   = self.makefpath("output-{}-{}")
+        file_averages = self.makefpath("averages-{}-{}")
+        file_plot     = self.makefpath("plot-{}-{}")
         # Export averages
         exporter.export_averages(file_averages, self.statskey,
                 *self.statsfields)
