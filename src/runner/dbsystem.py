@@ -12,7 +12,7 @@ class DbSystem:
     __REQUIRED_FIELDS = [
         'trials'    , 'min_mpl'   , 'max_mpl',
         'inc_mpl'   , 'workload'  , 'output',
-        'output_dir', 'statskey'  , 'statsfields',
+        'output_dir', 'avgkey'    , 'avgfields',
         'plotkey'   , 'plotfields',
     ]
 
@@ -163,10 +163,10 @@ class DbSystem:
         file_averages = self.makefpath("averages-{}-{}")
         file_plot     = self.makefpath("plot-{}-{}")
         # Export averages
-        exporter.export_averages(file_averages, self.statskey,
-                *self.statsfields)
+        exporter.export_averages(file_averages, self.avgkey,
+                *self.avgfields)
         # Export all data
-        exporter.export(file_output, self.statskey,
+        exporter.export(file_output, self.avgkey,
                 *const.TRACKED_STATS.keys())
         # Output averages plot if configured
         if self.output_plots:

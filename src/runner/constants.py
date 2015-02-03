@@ -107,8 +107,8 @@ OPTION_KEYS = {
     'output_dir'  : str,
     'workload'    : str,
     'output_plots': bool,
-    'statskey'    : str,
-    'statsfields' : lambda s: list(map(str.strip, s.split(','))),
+    'avgkey'    : str,
+    'avgfields' : lambda s: list(map(str.strip, s.split(','))),
     'plotkey'     : str,
     'plotfields'  : lambda s: list(map(str.strip, s.split(','))),
 }
@@ -122,8 +122,8 @@ OPTION_DEFAULTS = {
     'output'      : 'csv',
     'output_dir'  : 'output',
     'output_plots': True,
-    'statskey'    : 'mpl',
-    'statsfields' : 'anomaly_score, runtime',
+    'avgkey'    : 'mpl',
+    'avgfields' : 'anomaly_score, runtime',
     'plotkey'     : 'mpl',
     'plotfields'  : 'anomaly_score',
 }
