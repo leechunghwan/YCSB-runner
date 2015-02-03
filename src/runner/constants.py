@@ -1,5 +1,6 @@
 import re
 
+from .             import const_helpers as helpers
 from .csv_exporter import CsvExporter
 
 ### OUTPUTS ########################################################
@@ -99,33 +100,35 @@ CLEAN_COMMANDS = {
 # workload      =   workload file path
 # output_plots  =   whether to generate plots
 OPTION_KEYS = {
-    'trials'      : int,
-    'min_mpl'     : int,
-    'max_mpl'     : int,
-    'inc_mpl'     : int,
-    'output'      : lambda s: str(s).lower(),
-    'output_dir'  : str,
-    'workload'    : str,
-    'output_plots': bool,
-    'avgkey'    : str,
-    'avgfields' : lambda s: list(map(str.strip, s.split(','))),
-    'plotkey'     : str,
-    'plotfields'  : lambda s: list(map(str.strip, s.split(','))),
+    'trials'       : int,
+    'min_mpl'      : int,
+    'max_mpl'      : int,
+    'inc_mpl'      : int,
+    'output'       : lambda s: str(s).lower().strip(),
+    'output_dir'   : str,
+    'workload'     : str,
+    'output_plots' : bool,
+    'avgkey'       : str,
+    'avgfields'    : helpers.csv2list,
+    'plotkey'      : str,
+    'plotfields'   : helpers.csv2list,
+    'export_fields': helpers.csv2list,
 }
 
 # Specifies default values for options in the Runner configuration file
 OPTION_DEFAULTS = {
-    'trials'      : 1,
-    'min_mpl'     : 1,
-    'max_mpl'     : 25,
-    'inc_mpl'     : 4,
-    'output'      : 'csv',
-    'output_dir'  : 'output',
-    'output_plots': True,
-    'avgkey'    : 'mpl',
-    'avgfields' : 'anomaly_score, runtime',
-    'plotkey'     : 'mpl',
-    'plotfields'  : 'anomaly_score',
+    'trials'       : 1,
+    'min_mpl'      : 1,
+    'max_mpl'      : 25,
+    'inc_mpl'      : 4,
+    'output'       : 'csv',
+    'output_dir'   : 'output',
+    'output_plots' : True,
+    'avgkey'       : 'mpl',
+    'avgfields'    : 'anomaly_score, runtime',
+    'plotkey'      : 'mpl',
+    'plotfields'   : 'anomaly_score',
+    'export_fields': 'mpl,runtime,throughput,trial',
 }
 ####################################################################
 
@@ -154,6 +157,7 @@ TRACKED_STATS = {
     'mpl'        : int  , # Multiprogramming level (# threads)
     'trial'      : int  , # Trial number
 }
+
 ####################################################################
 
 ### OUTPUT LOGGING: ################################################

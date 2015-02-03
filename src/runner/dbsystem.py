@@ -166,8 +166,7 @@ class DbSystem:
         exporter.export_averages(file_averages, self.avgkey,
                 *self.avgfields)
         # Export all data
-        exporter.export(file_output, self.avgkey,
-                *const.TRACKED_STATS.keys())
+        exporter.export(file_output, self.avgkey, *self.export_fields)
         # Output averages plot if configured
         if self.output_plots:
             exporter.export_averages_plot(file_plot, "{} {}".format(
