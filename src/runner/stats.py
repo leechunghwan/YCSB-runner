@@ -23,7 +23,7 @@ class Statistics:
     def __getattr__(self, name):
         if name in self.__stats:
             return self.__stats[name]
-        raise AttributeError(name)
+        raise AttributeError("'%s' does not exist" % name)
 
     # Store stats attributes in __stats dict
     def __setattr__(self, name, value):
@@ -101,7 +101,7 @@ class StatisticsSet:
             if name.startswith(prefix):
                 name = re.sub(r'^' + prefix, "", name)
                 return f(name)
-        raise AttributeError
+        raise AttributeError("'%s' does not exist" % name)
 
     def __getitem__(self, key):
         """__getitem__
