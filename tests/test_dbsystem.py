@@ -38,8 +38,6 @@ class DbSystemTestCase(unittest.TestCase):
         # We don't want any stdout, so redirect to null device (/dev/null)
         self.__real_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
-        # Change CWD back to real CWD
-        os.chdir(self.__real_cwd)
 
     def tearDown(self):
         self.db.cleanup()
@@ -47,6 +45,8 @@ class DbSystemTestCase(unittest.TestCase):
         # Close /dev/null and re-assign stdout back to the real stdout
         sys.stdout.close()
         sys.stdout = self.__real_stdout
+        # Change CWD back to real CWD
+        os.chdir(self.__real_cwd)
 
     def test_getattr(self):
         self.assertEqual(self.db.trials, 1)
