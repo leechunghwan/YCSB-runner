@@ -1,4 +1,4 @@
-from pandas     import DataFrame
+from pandas     import DataFrame, concat
 from matplotlib import pyplot as plt
 
 from .exporter  import Exporter
@@ -23,8 +23,16 @@ class CsvExporter(Exporter):
     def export_averages_plot(self, filename, title, key, *fields):
         filename = filename + self.PLOTS_FILE_EXT
         plt.figure()
-        df = self.__dataframe(key, *fields).groupby(key).mean()
-        df.plot()
+        dfs = self.__dataframe(key, *fields).groupby(key)
+        # We want to plot the minimum, maximum, average, and standard error
+        # for a more representative analysis
+        concat([
+            dfs.max() .rename(columns=lambda s: 'max_'+s),
+            dfs.mean().rename(columns=lambda s: 'avg_'+s),
+            dfs.min() .rename(columns=lambda s: 'min_'+s),
+            dfs.sem() .rename(columns=lambda s: 'err_'+s),
+        ], axis=1).plot(style='o-')
+        # Set title, xlabel, ylabel
         plt.title(title)
         plt.savefig(filename)
         plt.clf()
