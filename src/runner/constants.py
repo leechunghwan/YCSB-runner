@@ -112,7 +112,7 @@ OPTION_KEYS = {
     'avgfields'    : helpers.csv2list,
     'plotkey'      : str,
     'plotfields'   : helpers.csv2list,
-    'export_fields': helpers.csv2list,
+    'exportfields' : helpers.csv2list,
 }
 
 # Specifies default values for options in the Runner configuration file
@@ -128,7 +128,7 @@ OPTION_DEFAULTS = {
     'avgfields'    : 'anomaly_score, runtime',
     'plotkey'      : 'mpl',
     'plotfields'   : 'anomaly_score',
-    'export_fields': 'mpl,runtime,throughput,trial',
+    'exportfields' : 'mpl,runtime,throughput,trial',
 }
 ####################################################################
 

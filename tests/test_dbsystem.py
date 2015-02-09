@@ -23,17 +23,18 @@ class DbSystemTestCase(unittest.TestCase):
         # Set up the DbSystem instance
         self.dbname = 'foobardb'
         self.db = DbSystem(self.dbname, {
-            'trials'    : 1,
-            'min_mpl'   : 1,
-            'max_mpl'   : 5,
-            'inc_mpl'   : 1,
-            'workload'  : 'foo',
-            'output'    : 'csv',
-            'output_dir': 'output',
-            'avgkey'    : 'mpl',
-            'avgfields' : ['runtime'],
-            'plotkey'   : 'mpl',
-            'plotfields': ['runtime'],
+            'trials'      : 1,
+            'min_mpl'     : 1,
+            'max_mpl'     : 5,
+            'inc_mpl'     : 1,
+            'workload'    : 'foo',
+            'output'      : 'csv',
+            'output_dir'  : 'output',
+            'avgkey'      : 'mpl',
+            'avgfields'   : ['runtime'],
+            'plotkey'     : 'mpl',
+            'plotfields'  : ['runtime'],
+            'exportfields': ['runtime'],
         })
         # We don't want any stdout, so redirect to null device (/dev/null)
         self.__real_stdout = sys.stdout
