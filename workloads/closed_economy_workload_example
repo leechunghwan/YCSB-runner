@@ -29,11 +29,12 @@ mongodb.writeConcern=safe
 redis.host=127.0.0.1
 redis.port=6379
 
-# MySQL Configuration
-db.driver=com.mysql.jdbc.Driver
-db.url=jdbc:mysql://localhost:3306/ycsb
+# PostgreSQL Configuration
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://localhost:5432/ycsb
 db.user=ycsb
 db.passwd=ycsb
+jdbc.isolation=read_committed
 
 # Cassandra configuration (localhost only)
 # Note: need to set up keyspace first, as outlined in:
