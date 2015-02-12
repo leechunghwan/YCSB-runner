@@ -99,6 +99,12 @@ CLEAN_COMMANDS = {
 # output        =   output format
 # workload      =   workload file path
 # output_plots  =   whether to generate plots
+# avgkey        =   key to use as index column in output data
+# avgfields     =   fields to include in the averages data output (e.g. CSV cols)
+# plotkey       =   key to plot values against in output plot
+# plotfields    =   fields to include in the output plot
+# exportfields  =   fields to include in the raw data output (e.g. CSV cols)
+# clean_data    =   whether or not the DBMS data should be wiped prior to each YCSB run
 OPTION_KEYS = {
     'trials'       : int,
     'min_mpl'      : int,
@@ -113,6 +119,7 @@ OPTION_KEYS = {
     'plotkey'      : str,
     'plotfields'   : helpers.csv2list,
     'exportfields' : helpers.csv2list,
+    'clean_data'   : bool,
 }
 
 # Specifies default values for options in the Runner configuration file
@@ -123,12 +130,13 @@ OPTION_DEFAULTS = {
     'inc_mpl'      : 4,
     'output'       : 'csv',
     'output_dir'   : 'output',
-    'output_plots' : True,
+    'output_plots' : 'true',
     'avgkey'       : 'mpl',
     'avgfields'    : 'anomaly_score, runtime',
     'plotkey'      : 'mpl',
     'plotfields'   : 'anomaly_score',
     'exportfields' : 'mpl,runtime,throughput,trial',
+    'clean_data'   : 'true',
 }
 ####################################################################
 

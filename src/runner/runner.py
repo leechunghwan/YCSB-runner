@@ -49,10 +49,12 @@ class Runner:
                         break
                     # Clean the database
                     db.log("Cleaning the database...", mpl=mpl, trial=trial)
-                    db.clean()
+                    if db.clean_data:
+                        db.clean()
                     # Load data and run YCSB
                     db.log("Loading YCSB data...", mpl=mpl, trial=trial)
-                    db.raw_log(self.__popen(db.cmd_ycsb_load()))
+                    if db.clean_data:
+                        db.raw_log(self.__popen(db.cmd_ycsb_load()))
                     db.log("Running YCSB workload...", mpl=mpl, trial=trial)
                     # Run YCSB+T, log output, collect stats
                     stats = Runner.extract_stats(db.raw_log(self.__popen(db.cmd_ycsb_run(mpl))))
@@ -108,6 +110,7 @@ class Runner:
                 config[k] = self.__config.getint(section, k)
             # Handle boolean-valued keys
             elif t is bool:
+                print("getting bool", k)
                 config[k] = self.__config.getboolean(section, k)
             # Handle string-valued keys
             elif t is str:

@@ -73,6 +73,17 @@ class DbSystem:
         return [s.replace("{TABLENAME}", self.tablename) for s in lst]
 
     @property
+    def clean_data(self):
+        """cleandata: Decide whether or not the DBMA data should be cleaned
+        and reloaded with 'ycsb load'"""
+        if "clean_data" in self.config and self.config["clean_data"] == True:
+            # We still clean the DBMS at the start of each trial, just not
+            # between MPL increases
+            return True if self.mpl == self.min_mpl else False
+        else:
+            return True
+
+    @property
     def labelname(self):
         """labelname
         The name of the database with its label
