@@ -22,7 +22,7 @@ class Runner:
         # Check that the configpath exists before reading it
         if not os.path.exists(configpath):
             raise IOError("Runner config file '%s' does not exist" % configpath)
-        # Read the config with Python's ConfigParser first
+        # Read the runner config with Python's ConfigParser first
         self.__config = configparser.ConfigParser(defaults=const.OPTION_DEFAULTS)
         self.__config.read(configpath)
         # Now, process the config further, extracting DBMS names, options
@@ -38,7 +38,11 @@ class Runner:
             self.__run_hooks("PRE_DB", db)
             # Copy config files to output dir
             copyfile(self.__configpath, db.makefpath("config-{}-{}.ini"))
-            copyfile(db.workload_path, db.makefpath("workload-{}-{}"))
+            # Copy the raw workload and generated workload to output for
+            # reference. This is useful because the generated workload file
+            # doesn't include original comments, for exmaple.
+            copyfile(db.base_workload_path, db.makefpath("workload-{}-{}"))
+            db.generate_workload_file(db.makefpath("workload-generated-{}-{}"))
             for trial in range(1, db.trials + 1):
                 self.__run_hooks("PRE_TRIAL", trial, db)
                 db.log("Starting trial %i..." % (trial), trial=trial)
@@ -94,12 +98,13 @@ class Runner:
         """
         dbs = []
         for section in self.__config.sections():
-            config = self.__process_config_keys(section)
-            dbs += self.__process_dbs(section, config)
+            config = self.__process_runner_config_keys(section)
+            dbs += self.__process_dbs(section, config,
+                    self.__extraneous_config(self.__config[section]))
         return dbs
 
-    def __process_config_keys(self, section):
-        """__process_config_keys
+    def __process_runner_config_keys(self, section):
+        """__process_runner_config_keys
         :param section: Name of section from runner config file for which
         k=v options should be processed
         """
@@ -121,40 +126,56 @@ class Runner:
                 print("Warning: skipping key %s with invalid type" % k)
         return config
 
-    def __process_dbs(self, section, config):
+    def __extraneous_config(self, config_section):
+        """__extraneous_config
+        Returns a dictionary containing key -> value mappings from the
+        specified config section which aren't contained in the
+        const.OPTION_KEYS dict
+
+        :param config_section: An object corresponding to one section from a
+        configparser object
+        """
+        config_keys = set(config_section.keys())
+        option_keys = set(const.OPTION_KEYS.keys())
+        extraneous_keys = list(config_keys - option_keys)
+        return {k: config_section.get(k) for k in extraneous_keys}
+
+    def __process_dbs(self, section, config, extraneous_config):
         """__process_dbs
         Creates DbSystem instances with their corresponding configurations for
         each DBMS in the runner config
 
         :param section: Section string from Python configparser sections
         :param config: Dict of key -> value mappings from parsed config
-            sections (e.g. output of __process_config_keys)
+            sections (e.g. output of __process_runner_config_keys)
+        :param extraneous_config: Dict containing extraneous config k->v pairs
         """
         # Section headings may contain multiple DB names, CSV format
         section = [s.strip() for s in section.split(',')]
         db_instances = []
-        for db in section:
+        for dbname in section:
             # Extract and remove the DBMS label
-            label = const.RE_DBNAME_LABEL.search(db)
+            label = const.RE_DBNAME_LABEL.search(dbname)
             if label is not None:
                 label, = label.groups(0)
-                db = const.RE_DBNAME_LABEL.sub("", db)
+                dbname = const.RE_DBNAME_LABEL.sub("", dbname)
             else:
                 label = ""
             # Validate DBMS name
-            if db.lower() not in const.SUPPORTED_DBS:
+            if dbname.lower() not in const.SUPPORTED_DBS:
                 print("Invalid database found: %s. Only (%s) are supported. Skipping..." %
-                        (db, ','.join(const.SUPPORTED_DBS)))
+                        (dbname, ','.join(const.SUPPORTED_DBS)))
                 continue
 
             # Get the tablename, or use default
             # TODO: Maybe grab this from the workload config file instead of
             #       the runner config?
-            tablename = self.__config.get(db+label, "tablename", fallback=const.DEFAULT_TABLENAME)
+            tablename = self.__config.get(dbname+label, "tablename", fallback=const.DEFAULT_TABLENAME)
             # Build the DbSystem object
-            db_instances.append(DbSystem(db, config, label=label,
-                tablename=tablename))
+            db_instances.append(DbSystem(dbname, config, label=label,
+                tablename=tablename, extraneous_config=extraneous_config))
         return db_instances
+
 
     @classmethod
     def extract_stats(cls, stdout):

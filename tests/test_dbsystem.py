@@ -9,6 +9,14 @@ import runner.constants as const
 from runner.dbsystem import DbSystem
 from runner.stats    import Statistics, StatisticsSet
 
+
+FOO_WORKLOAD = """
+recordcount=10000
+operationcount=100000
+workload=com.yahoo.ycsb.workloads.ClosedEconomyWorkload
+totalcash=10000000
+"""
+
 class DbSystemTestCase(unittest.TestCase):
     def setUp(self):
         # Set the working directory to some temp dir
@@ -20,6 +28,9 @@ class DbSystemTestCase(unittest.TestCase):
         const.SUPPORTED_DBS['barfoodb'] = None
         const.CLEAN_COMMANDS['foobardb'] = ['false']
         const.CLEAN_COMMANDS['barfoodb'] = ['true']
+        # Write fake workload
+        with open('foo', 'w') as wf:
+            wf.write(FOO_WORKLOAD)
         # Set up the DbSystem instance
         self.dbname = 'foobardb'
         self.db = DbSystem(self.dbname, {
@@ -125,10 +136,13 @@ class DbSystemTestCase(unittest.TestCase):
         self.assertTrue(len(os.listdir(self.db.outdirpath)) == 3)
 
     def test_workload_path(self):
+        # Ensure workload file exists
+        self.assertTrue(os.path.exists(self.db.workload_path))
+        self.assertTrue(os.path.exists(self.db.base_workload_path))
         # Ensure workload path is in CWD
-        self.assertEqual(os.path.dirname(self.db.workload_path), os.getcwd())
+        self.assertEqual(os.path.dirname(self.db.base_workload_path), os.getcwd())
         # Test the workload name we gave in setUp()
-        self.assertTrue(self.db.workload_path.endswith("foo"))
+        self.assertTrue(self.db.base_workload_path.endswith("foo"))
 
     def test_cmd_ycsb_load(self):
         self.assertEqual(self.db.dbname, 'foobardb')

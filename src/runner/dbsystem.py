@@ -1,7 +1,9 @@
 import os
 import sys
+import tempfile
 import subprocess
 
+from pyjavaproperties import Properties
 from datetime import datetime
 
 from .      import constants as const
@@ -16,7 +18,8 @@ class DbSystem:
         'plotkey'   , 'plotfields',
     ]
 
-    def __init__(self, dbname, config, label="", tablename=const.DEFAULT_TABLENAME):
+    def __init__(self, dbname, config, label="",
+            tablename=const.DEFAULT_TABLENAME, extraneous_config=None):
         # Ensure we have all required fields
         self.__validate_config(config)
         # Set public instance vars
@@ -29,6 +32,11 @@ class DbSystem:
         self.__outdir = None
         self.__stats = None
         self.__logfile = None
+        self.__working_workload_file = None
+        self.__base_workload_props = None
+        # Set up the YCSB workload file
+        self.workload_config = self.__generate_workload_config(extraneous_config)
+        self.__create_working_workload_file()
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):
@@ -62,6 +70,31 @@ class DbSystem:
             if k not in config:
                 raise AttributeError("Missing required configuration parameter: %s" % k)
         return True # presumably nothing was raised and all is well
+
+    def __generate_workload_config(self, extraneous_config):
+        # Read base workload properties into a dict if we haven't already
+        if self.__base_workload_props is None:
+            props = Properties()
+            with open(self.workload_path) as wf:
+                props.load(wf)
+            self.__base_workload_props = props.getPropertyDict()
+        if extraneous_config is None:
+            extraneous_config = {}
+        # Merge base workload properties with extraneous options
+        workload_config = dict(self.__base_workload_props)
+        workload_config.update(extraneous_config)
+        # Merge and return the workload config dict
+        return workload_config
+
+    def __create_working_workload_file(self):
+        """__create_working_workload_file
+        Create a 'working' workload file from self.workload_config, update
+        self.__working_workload_file to store the file object of this new
+        working workload file
+        """
+        working_workload_file = tempfile.NamedTemporaryFile(mode='w')
+        self.generate_workload_file(working_workload_file.name)
+        self.__working_workload_file = working_workload_file
 
     def __tablenameify(self, lst):
         """__tablenameify
@@ -164,6 +197,8 @@ class DbSystem:
         """
         if self.__logfile != None and not self.__logfile.closed:
             self.__logfile.close()
+        if self.__working_workload_file != None:
+            self.__working_workload_file.close()
 
     def export_stats(self):
         """export_stats
@@ -189,7 +224,29 @@ class DbSystem:
         """workload_path
         Path to the YCSB workload file for this DB instance
         """
+        if self.__working_workload_file is None:
+            return self.base_workload_path
+        else:
+            return os.path.abspath(self.__working_workload_file.name)
+    @property
+    def base_workload_path(self):
+        """base_workload_path
+        Path to the base YCSB workload file for this DB instance
+        """
         return os.path.join(os.getcwd(), self.workload)
+
+    def generate_workload_file(self, path=None):
+        """generate_workload_file
+        Writes the workload configuration dictionary to a workload file
+
+        :param path: Path to file in which workload config should be written.
+            If not given, self.workload_path will be used.
+        """
+        if path is None:
+            path = self.workload_path
+        with open(path, 'w') as f:
+            for k, v in sorted(self.workload_config.items()):
+                f.write("{}={}\n".format(k, v))
 
     def cmd_ycsb_load(self):
         """cmd_ycsb_load
