@@ -145,7 +145,6 @@ class DbSystem:
         if self.__logfile == None or self.__logfile.closed:
             lfpath = self.makefpath("log-{}-{}.log")
             self.__logfile = open(lfpath, 'w', 1)
-            print("OPENING LOG", lfpath)
         return self.__logfile
 
     def log(self, message, lf=True, mpl=None, trial=None):
@@ -167,7 +166,7 @@ class DbSystem:
         if trial is not None:
             message = "(Trial=%s) %s" % (trial, message)
         # Prepend dbname to message for user reference
-        message = "[%s] %s" % (self.labelname, message)
+        message = "[%s] [%s] %s" % (self.__datestr, self.labelname, message)
         print(const.LOG_LINE_PREFIX % message)
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
