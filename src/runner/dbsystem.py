@@ -201,7 +201,7 @@ class DbSystem:
 
     def export_stats(self):
         """export_stats
-        Writes output to the
+        Writes output to the output directory using some Exporter
         """
         exporter = const.SUPPORTED_OUTPUTS[self.output](self.stats)
         file_output   = self.makefpath("output-{}-{}")

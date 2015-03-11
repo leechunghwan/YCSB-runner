@@ -67,9 +67,10 @@ class Runner:
                     stats.trial = trial
                     db.stats.addstats(stats)
                     self.__run_hooks("POST_MPL", mpl, trial, db)
+                    # Export run stats repeatedly for maximum durability
+                    db.log("Exporting run stats...")
+                    db.export_stats()
                 self.__run_hooks("POST_TRIAL", trial, db)
-            db.log("Exporting run stats...")
-            db.export_stats()
             db.cleanup() # ensure file handles are closed properly and don't leak
             self.__run_hooks("POST_DB", db)
         self.__run_hooks("POST_RUN")
