@@ -99,8 +99,7 @@ class Runner:
         dbs = []
         for section in self.__config.sections():
             config = self.__process_runner_config_keys(section)
-            dbs += self.__process_dbs(section, config,
-                    self.__extraneous_config(self.__config[section]))
+            dbs += self.__process_dbs(section, config)
         return dbs
 
     def __process_runner_config_keys(self, section):
@@ -140,7 +139,7 @@ class Runner:
         extraneous_keys = list(config_keys - option_keys)
         return {k: config_section.get(k) for k in extraneous_keys}
 
-    def __process_dbs(self, section, config, extraneous_config):
+    def __process_dbs(self, section, config):
         """__process_dbs
         Creates DbSystem instances with their corresponding configurations for
         each DBMS in the runner config
@@ -148,8 +147,9 @@ class Runner:
         :param section: Section string from Python configparser sections
         :param config: Dict of key -> value mappings from parsed config
             sections (e.g. output of __process_runner_config_keys)
-        :param extraneous_config: Dict containing extraneous config k->v pairs
         """
+        # Find extraneous config pairs
+        extraneous_config = self.__extraneous_config(self.__config[section])
         # Section headings may contain multiple DB names, CSV format
         section = [s.strip() for s in section.split(',')]
         db_instances = []
@@ -175,7 +175,6 @@ class Runner:
             db_instances.append(DbSystem(dbname, config, label=label,
                 tablename=tablename, extraneous_config=extraneous_config))
         return db_instances
-
 
     @classmethod
     def extract_stats(cls, stdout):
