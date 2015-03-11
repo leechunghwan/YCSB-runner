@@ -4,3 +4,4 @@ test.*
 *.pyc
 hooks.py
 workloads/*_test
+workloads/*_test*
