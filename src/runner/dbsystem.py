@@ -32,11 +32,11 @@ class DbSystem:
         self.__outdir = None
         self.__stats = None
         self.__logfile = None
-        self.__working_workload_file = None
+        self.__temp_workload_file = None
         self.__base_workload_props = None
         # Set up the YCSB workload file
         self.workload_config = self.__generate_workload_config(extraneous_config)
-        self.__create_working_workload_file()
+        self.__create_temp_workload_file()
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):
@@ -86,15 +86,15 @@ class DbSystem:
         # Merge and return the workload config dict
         return workload_config
 
-    def __create_working_workload_file(self):
-        """__create_working_workload_file
+    def __create_temp_workload_file(self):
+        """__create_temp_workload_file
         Create a 'working' workload file from self.workload_config, update
-        self.__working_workload_file to store the file object of this new
+        self.__temp_workload_file to store the file object of this new
         working workload file
         """
-        working_workload_file = tempfile.NamedTemporaryFile(mode='w')
-        self.generate_workload_file(working_workload_file.name)
-        self.__working_workload_file = working_workload_file
+        temp_workload_file = tempfile.NamedTemporaryFile(mode='w')
+        self.generate_workload_file(temp_workload_file.name)
+        self.__temp_workload_file = temp_workload_file
 
     def __tablenameify(self, lst):
         """__tablenameify
@@ -197,8 +197,8 @@ class DbSystem:
         """
         if self.__logfile != None and not self.__logfile.closed:
             self.__logfile.close()
-        if self.__working_workload_file != None:
-            self.__working_workload_file.close()
+        if self.__temp_workload_file != None:
+            self.__temp_workload_file.close()
 
     def export_stats(self):
         """export_stats
@@ -224,10 +224,10 @@ class DbSystem:
         """workload_path
         Path to the YCSB workload file for this DB instance
         """
-        if self.__working_workload_file is None:
+        if self.__temp_workload_file is None:
             return self.base_workload_path
         else:
-            return os.path.abspath(self.__working_workload_file.name)
+            return os.path.abspath(self.__temp_workload_file.name)
     @property
     def base_workload_path(self):
         """base_workload_path
