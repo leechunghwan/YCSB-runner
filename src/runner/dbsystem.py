@@ -103,16 +103,36 @@ class DbSystem:
         :param lst: List of strings within which {PLACEHOLDERS} should be
                     subbed
         """
-        # Handle port substitutions
-        port = const.DEFAULT_JDBC_PORT
+        # Handle DBMS-specific config substitutions
+        # This is all a bit hacky, but it's fiiiiiiiiine, it's just code
+        jdbc_config  = dict(const.CLEAN_DEFAULT_JDBC)
+        mongo_config = dict(const.CLEAN_DEFAULT_MONGO)
+        # JDBC-specific configuration
         if 'db.url' in self.workload_config:
-            port = const.RE_JDBC_PORT_NUM.search(self.workload_config['db.url'])
-            port = port.groups()[0] if port else const.DEFAULT_JDBC_PORT
+            match = const.RE_HOSTNAME_PORT.search(self.workload_config['db.url'])
+            if match:
+                jdbc_config['host'], jdbc_config['port'] = match.groups()
+        # Handle JDBC auth options
+        for k in ('user', 'passwd', 'dbname'):
+            dbK = 'db'+k
+            if dbK in self.workload_config:
+                jdbc_config[k] = self.workload_config[dbK]
+        # Mongo-specific configuration
+        if 'mongodb.url' in self.workload_config:
+            match = const.RE_HOSTNAME_PORT.search(self.workload_config['db.url'])
+            if match:
+                mongo_config['host'], mongo_config['port'] = match.groups()
+        if 'mongodb.database' in self.workload_config:
+            mongo_config['dbname'] = self.workload_config['mongodb.database']
         # Build a substitution map
         subst = {
             "TABLENAME" : self.tablename,
-            "JDBC_PORT" : port,
         }
+        # Add entries from {JDBC,MONGO}_CONFIG to subst, in the form
+        #   {JDBC,MONGO}_{PORT,USER,PASSWD,DBNAME}
+        subst.update({"JDBC_" +k.upper(): v for k, v in jdbc_config.items()})
+        subst.update({"MONGO_"+k.upper(): v for k, v in mongo_config.items()})
+
         # Perform substitutions
         for k, v in subst.items():
             lst = [s.replace("{" + str(k) + "}", str(v)) for s in lst]

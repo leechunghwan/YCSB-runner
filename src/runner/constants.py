@@ -39,11 +39,23 @@ DEFAULT_TABLENAME = "usertable"
 # where after : is the label, which may contain A-Z, a-z, 0-9, _, and -
 RE_DBNAME_LABEL = re.compile(r"(:[A-Za-z0-9_-]+$)")
 
-# Regexps for extracting port numbers from workload configurations
-RE_JDBC_PORT_NUM = re.compile(r"://.+?:([0-9]{1,5})/?")
+# Regexps for extracting port numbers, etc. from workload configurations
+RE_HOSTNAME_PORT  = re.compile(r"://(.+?):([0-9]{1,5})/?")
 
-# Default port number
-DEFAULT_JDBC_PORT  = 5432
+# Default DBMS settings to be substituted into clean commands
+CLEAN_DEFAULT_JDBC = {
+    'port'   : 5432,
+    'user'   : 'ycsb',
+    'passwd' : 'ycsb',
+    'dbname' : 'ycsb',
+    'host'   : 'localhost',
+}
+
+CLEAN_DEFAULT_MONGO = {
+    'port'   : 27017,
+    'dbname' : 'ycsb',
+    'host'   : 'localhost',
+}
 
 # Commands for truncating each DBMS
 # NOTE: PostgreSQL requires the database user password to be specified in a
@@ -52,22 +64,22 @@ CLEAN_COMMANDS = {
     'jdbc-mysql': [
         "mysql",
         "-u",
-        "ycsb",
-        "-pycsb",
+        "{JDBC_USER}",
+        "-p{JDBC_PASSWD}",
         "-P",
         "{JDBC_PORT}",
         "-e",
         "TRUNCATE TABLE {TABLENAME};",
-        "ycsb"
+        "{JDBC_DBNAME}"
     ],
     'jdbc-postgres': [
         "psql",
         "--host",
-        "localhost",
+        "{JDBC_HOST}",
         "-d",
-        "ycsb",
+        "{JDBC_DBNAME}",
         "-U",
-        "ycsb",
+        "{JDBC_USER}",
         "-p",
         "{JDBC_PORT}",
         "-c",
@@ -76,10 +88,10 @@ CLEAN_COMMANDS = {
     'mongodb': [
         "mongo",
         "--host",
-        "localhost",
+        "{MONGO_HOST}",
         "--eval",
         "db.dropDatabase();",
-        "ycsb"
+        "{MONGO_DBNAME}"
     ],
     'redis': [
         "redis-cli",
