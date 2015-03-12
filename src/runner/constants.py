@@ -39,6 +39,12 @@ DEFAULT_TABLENAME = "usertable"
 # where after : is the label, which may contain A-Z, a-z, 0-9, _, and -
 RE_DBNAME_LABEL = re.compile(r"(:[A-Za-z0-9_-]+$)")
 
+# Regexps for extracting port numbers from workload configurations
+RE_JDBC_PORT_NUM = re.compile(r"://.+?:([0-9]{1,5})/?")
+
+# Default port number
+DEFAULT_JDBC_PORT  = 5432
+
 # Commands for truncating each DBMS
 # NOTE: PostgreSQL requires the database user password to be specified in a
 # .pgpass file in the user's home directory
@@ -48,6 +54,8 @@ CLEAN_COMMANDS = {
         "-u",
         "ycsb",
         "-pycsb",
+        "-P",
+        "{JDBC_PORT}",
         "-e",
         "TRUNCATE TABLE {TABLENAME};",
         "ycsb"
@@ -60,6 +68,8 @@ CLEAN_COMMANDS = {
         "ycsb",
         "-U",
         "ycsb",
+        "-p",
+        "{JDBC_PORT}",
         "-c",
         "TRUNCATE TABLE {TABLENAME};"
     ],

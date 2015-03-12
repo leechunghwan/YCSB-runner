@@ -96,14 +96,27 @@ class DbSystem:
         self.generate_workload_file(temp_workload_file.name)
         self.__temp_workload_file = temp_workload_file
 
-    def __tablenameify(self, lst):
-        """__tablenameify
-        Replaces {TABLENAME} with the configured name of the YCSB+T table in
-        the given list of strings
+    def __templateify(self, lst):
+        """__templateify
+        Replaces {PLACEHOLDERS} in the given list of strings
 
-        :param lst: List of strings within which {TABLENAME} should be subbed
+        :param lst: List of strings within which {PLACEHOLDERS} should be
+                    subbed
         """
-        return [s.replace("{TABLENAME}", self.tablename) for s in lst]
+        # Handle port substitutions
+        port = const.DEFAULT_JDBC_PORT
+        if 'db.url' in self.workload_config:
+            port = const.RE_JDBC_PORT_NUM.search(self.workload_config['db.url'])
+            port = port.groups()[0] if port else const.DEFAULT_JDBC_PORT
+        # Build a substitution map
+        subst = {
+            "TABLENAME" : self.tablename,
+            "JDBC_PORT" : port,
+        }
+        # Perform substitutions
+        for k, v in subst.items():
+            lst = [s.replace("{" + str(k) + "}", str(v)) for s in lst]
+        return lst
 
     @property
     def clean_data(self):
@@ -284,7 +297,7 @@ class DbSystem:
 
         This should be called BEFORE the DB is processed
         """
-        excode = subprocess.call(self.__tablenameify(const.CLEAN_COMMANDS[self.dbname.lower()]))
+        excode = subprocess.call(self.__templateify(const.CLEAN_COMMANDS[self.dbname.lower()]))
         # We don't want to continue if cleaning the DB failed (see #7)
         if excode != 0:
             raise RuntimeError("Error: db.clean() did not complete " +
