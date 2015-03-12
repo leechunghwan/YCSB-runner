@@ -26,7 +26,7 @@ SUPPORTED_DBS = {
     'cassandra-10'  :  None,
 }
 
-# The default table name to use if not specified in runner config file
+# The default table name to use if not specified as a workload property
 DEFAULT_TABLENAME = "usertable"
 
 # Matches labels (bits after : in dbname config sections)

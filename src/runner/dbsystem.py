@@ -18,8 +18,9 @@ class DbSystem:
         'plotkey'   , 'plotfields',
     ]
 
+    # Note: setting tablename here overrides any other table name setting
     def __init__(self, dbname, config, label="",
-            tablename=const.DEFAULT_TABLENAME, extraneous_config=None):
+            tablename=None, extraneous_config=None):
         # Ensure we have all required fields
         self.__validate_config(config)
         # Set public instance vars
@@ -37,6 +38,12 @@ class DbSystem:
         # Set up the YCSB workload file
         self.workload_config = self.__generate_workload_config(extraneous_config)
         self.__create_temp_workload_file()
+        # Ensure self.tablename is set from the workload properties if possible
+        if tablename is None:
+            self.tablename = self.workload_config['table'] if 'table' in \
+                self.workload_config else const.DEFAULT_TABLENAME
+        else:
+            self.tablename = tablename
 
     # Gets attributes from the configuration dict
     def __getattr__(self, name):

@@ -168,13 +168,9 @@ class Runner:
                         (dbname, ','.join(const.SUPPORTED_DBS)))
                 continue
 
-            # Get the tablename, or use default
-            # TODO: Maybe grab this from the workload config file instead of
-            #       the runner config?
-            tablename = self.__config.get(dbname+label, "tablename", fallback=const.DEFAULT_TABLENAME)
             # Build the DbSystem object
             db_instances.append(DbSystem(dbname, config, label=label,
-                tablename=tablename, extraneous_config=extraneous_config))
+                extraneous_config=extraneous_config))
         return db_instances
 
     @classmethod
