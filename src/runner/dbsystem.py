@@ -126,7 +126,7 @@ class DbSystem:
                 jdbc_config[k] = self.workload_config[dbK]
         # Mongo-specific configuration
         if 'mongodb.url' in self.workload_config:
-            match = const.RE_HOSTNAME_PORT.search(self.workload_config['db.url'])
+            match = const.RE_HOSTNAME_PORT.search(self.workload_config['mongodb.url'])
             if match:
                 mongo_config['host'], mongo_config['port'] = match.groups()
         if 'mongodb.database' in self.workload_config:
