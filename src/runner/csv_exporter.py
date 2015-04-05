@@ -1,8 +1,11 @@
 import collections
 import pandas as pd
 
-from pandas     import DataFrame, concat
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib import pyplot as plt
+from pandas     import DataFrame, concat
 
 from .exporter  import Exporter
 
