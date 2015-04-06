@@ -2,7 +2,7 @@ import collections
 import pandas as pd
 
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Cairo')
 
 from matplotlib import pyplot as plt
 from pandas     import DataFrame, concat
@@ -57,6 +57,7 @@ class CsvExporter(Exporter):
         axes[0].set_title(title)
         # Tighten the layout, ensure all elements fit in the bounding box
         plt.tight_layout()
+        # Finally, save and clear
         plt.savefig(filename)
         plt.clf()
 
