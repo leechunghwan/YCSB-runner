@@ -2,7 +2,8 @@ import collections
 import pandas as pd
 
 import matplotlib
-matplotlib.use('Cairo')
+matplotlib.use('Agg')
+matplotlib.rc('font', family='sans-serif')
 
 from matplotlib import pyplot as plt
 from pandas     import DataFrame, concat
