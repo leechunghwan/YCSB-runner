@@ -24,7 +24,10 @@ def plot(fname):
         # PLOT_FIELDS)
         dfs[i] = f.set_index(INDEX_FIELD).drop([k for k,v in f.iteritems() if
             k not in PLOT_FIELDS and k != INDEX_FIELD], axis=1)
-    concat(dfs, axis=1).mean(axis=1).plot(style=PLOT_STYLE)
+    # Create a final DF, renaming columns, and calculating the mean
+    final_df = concat(dfs, axis=1).mean(axis=1).rename(columns=lambda s: fname)
+    # And finally, make the plot
+    final_df.plot(style=PLOT_STYLE)
 
 # Print usage info and exit
 def usage():
