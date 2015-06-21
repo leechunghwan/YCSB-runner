@@ -168,24 +168,26 @@ OPTION_DEFAULTS = {
 # The first match group is extracted for each statistic
 # The keys in this dict should match to keys in TRACKED_STATS
 STAT_REGEXPS = {
-    'totalcash'  : re.compile(r"TOTAL CASH], ([0-9]+)"),
-    'countcash'  : re.compile(r"COUNTED CASH], ([0-9]+)"),
-    'opcount'    : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
-    'runtime'    : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
-    'throughput' : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
+    'totalcash'      : re.compile(r"TOTAL CASH], ([0-9]+)"),
+    'countcash'      : re.compile(r"COUNTED CASH], ([0-9]+)"),
+    'opcount'        : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
+    'runtime'        : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
+    'throughput'     : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
+    'latency_tx_rmw' : re.compile(r"TX-READMODIFYWRITE], AverageLatency.+?, ([0-9.]+)"),
 }
 
 # Mappings of tracked statistics to their Python types
 # These Python types should be numerical, i.e. float, int, long
 # Note: Only statistics listed here will be stored by the Statistics class
 TRACKED_STATS = {
-    'totalcash'  : float, # From YCSB output
-    'countcash'  : float, # From YCSB output
-    'opcount'    : float, # From YCSB output
-    'runtime'    : float, # From YCSB output
-    'throughput' : float, # From YCSB output
-    'mpl'        : int  , # Multiprogramming level (# threads)
-    'trial'      : int  , # Trial number
+    'totalcash'      : float, # From YCSB output
+    'countcash'      : float, # From YCSB output
+    'opcount'        : float, # From YCSB output
+    'runtime'        : float, # From YCSB output
+    'throughput'     : float, # From YCSB output
+    'latency_tx_rmw' : float, # From YCSB output
+    'mpl'            : int  , # Multiprogramming level (# threads)
+    'trial'          : int  , # Trial number
 }
 
 ####################################################################
