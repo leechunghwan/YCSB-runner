@@ -206,7 +206,7 @@ class DbSystem:
         if trial is not None:
             message = "(Trial=%s) %s" % (trial, message)
         # Prepend dbname to message for user reference
-        message = "[%s] [%s] %s" % (self.__datestr, self.labelname, message)
+        message = "[%s] [%s] %s" % (datetime.now().isoformat(), self.labelname, message)
         print(const.LOG_LINE_PREFIX % message)
         if lf:
             print(const.LOG_LINE_PREFIX % message, file=self.logfile)
