@@ -42,13 +42,13 @@ class CsvExporter(Exporter):
         # Plot each list field as a separate subplot
         for i, field in enumerate(fields):
             dfs = self.__dataframe(key, field).groupby(key)
-            # We want to plot the minimum, maximum, average, and standard error
-            # for a more representative analysis
+            # We want to plot the minimum, maximum, average, and standard
+            # deviation for a more representative analysis
             dfs = concat([
                 dfs.max() .rename(columns=lambda s: 'max_'+s),
                 dfs.mean().rename(columns=lambda s: 'avg_'+s),
                 dfs.min() .rename(columns=lambda s: 'min_'+s),
-                dfs.sem() .rename(columns=lambda s: 'err_'+s),
+                dfs.std() .rename(columns=lambda s: 'std_'+s),
             ], axis=1)
             # Enlarge the graph if we're plotting multiple stats
             fsz = (8,8) if i > 0 else None
