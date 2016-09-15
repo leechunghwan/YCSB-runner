@@ -9,8 +9,7 @@ Please consult [the wiki](https://github.com/benjaminbrent/YCSB-runner/wiki) for
 
 ### Project Status
 
-This project is currently under active development and is not stable nor ready
-for general use.
+This project is not being maintained, but pull requests are welcome.
 
 ## YCSB Version Support
 
