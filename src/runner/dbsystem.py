@@ -2,8 +2,9 @@ import os
 import sys
 import tempfile
 import subprocess
+import configparser
 
-from pyjavaproperties import Properties
+#from pyjavaproperties import Properties
 from datetime import datetime
 
 from .      import constants as const
@@ -81,16 +82,21 @@ class DbSystem:
     def __generate_workload_config(self, extraneous_config):
         # Read base workload properties into a dict if we haven't already
         if self.__base_workload_props is None:
-            props = Properties()
-            with open(self.workload_path) as wf:
-                props.load(wf)
-            self.__base_workload_props = props.getPropertyDict()
+            config = configparser.RawConfigParser()
+            config.read(self.workload_path)
+            self.__base_workload_props = dict(config.items('config'))
+
+            #props = Properties()
+            #with open(self.workload_path) as wf:
+            #   props.load(wf)
+            #self.__base_workload_props = props.getPropertyDict()
         if extraneous_config is None:
             extraneous_config = {}
         # Merge base workload properties with extraneous options
         workload_config = dict(self.__base_workload_props)
         workload_config.update(extraneous_config)
         # Merge and return the workload config dict
+        print(workload_config)
         return workload_config
 
     def __create_temp_workload_file(self):

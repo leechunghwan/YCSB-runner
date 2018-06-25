@@ -1,8 +1,9 @@
+[config]
 # Configuration from YCSB+T paper
 recordcount=10000
 operationcount=100000
-workload=com.yahoo.ycsb.workloads.ClosedEconomyWorkload
-totalcash=10000000
+workload=com.yahoo.ycsb.workloads.CoreWorkload
+# totalcash=10000000
 
 readproportion=0.9
 updateproportion=0
@@ -21,22 +22,22 @@ readallfields=false
 histogram.buckets=0
 
 # MongoDB configuration
-mongodb.url=mongodb://localhost:27017
-mongodb.database=ycsb
-mongodb.writeConcern=safe
+# mongodb.url=mongodb://localhost:27017
+# mongodb.database=ycsb
+# mongodb.writeConcern=safe
 
 # Redis configuration
 redis.host=127.0.0.1
 redis.port=6379
 
 # PostgreSQL Configuration
-db.driver=org.postgresql.Driver
-db.url=jdbc:postgresql://localhost:5432/ycsb
-db.user=ycsb
-db.passwd=ycsb
-jdbc.isolation=read_committed
+# db.driver=org.postgresql.Driver
+# db.url=jdbc:postgresql://localhost:5432/ycsb
+# db.user=ycsb
+# db.passwd=ycsb
+# jdbc.isolation=read_committed
 
 # Cassandra configuration (localhost only)
 # Note: need to set up keyspace first, as outlined in:
 # https://github.com/brianfrankcooper/YCSB/wiki/Using-the-Database-Libraries#using-the-cassandra-library
-hosts=127.0.0.1
+# hosts=127.0.0.1

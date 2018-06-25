@@ -30,7 +30,7 @@ class CsvExporter(Exporter):
     def export_averages_plot(self, filename, title, key, *fields):
         #for field in fields:
         #filename = filename + "-" + field + self.PLOTS_FILE_EXT
-        pd.options.display.mpl_style = 'default'
+        #pd.options.display.mpl_style = 'default'
         filename = filename + self.PLOTS_FILE_EXT
         plt.figure()
         fig, axes = plt.subplots(nrows=len(fields), ncols=1, sharex=True)
