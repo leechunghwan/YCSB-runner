@@ -173,7 +173,10 @@ STAT_REGEXPS = {
     'opcount'        : re.compile(r"ACTUAL OPERATIONS], ([0-9]+)"),
     'runtime'        : re.compile(r"OVERALL], RunTime.+?, ([0-9.]+)"),
     'throughput'     : re.compile(r"OVERALL], Throughput.+?, ([0-9.]+)"),
-    'latency_tx_rmw' : re.compile(r"TX-READMODIFYWRITE], AverageLatency.+?, ([0-9.]+)"),
+    'latency_tx_avg' : re.compile(r"READ-MODIFY-WRITE], AverageLatency.+?, ([0-9.]+)"),
+    'latency_tx_95' : re.compile(r"READ-MODIFY-WRITE], 95thPercentileLatency.+?, ([0-9.]+)"),
+    'latency_tx_99' : re.compile(r"READ-MODIFY-WRITE], 99thPercentileLatency.+?, ([0-9.]+)"),
+    'latency_tx_rmw' : re.compile(r"READ-MODIFY-WRITE], MaxLatency.+?, ([0-9.]+)"),
 }
 
 # Mappings of tracked statistics to their Python types
@@ -185,6 +188,9 @@ TRACKED_STATS = {
     'opcount'        : float, # From YCSB output
     'runtime'        : float, # From YCSB output
     'throughput'     : float, # From YCSB output
+    'latency_tx_avg' : float, # From YCSB output
+    'latency_tx_95' : float, # From YCSB output
+    'latency_tx_99' : float, # From YCSB output
     'latency_tx_rmw' : float, # From YCSB output
     'mpl'            : int  , # Multiprogramming level (# threads)
     'trial'          : int  , # Trial number
