@@ -82,9 +82,9 @@ class DbSystem:
     def __generate_workload_config(self, extraneous_config):
         # Read base workload properties into a dict if we haven't already
         if self.__base_workload_props is None:
-            config = configparser.RawConfigParser()
+            config = configparser.ConfigParser()
             config.read(self.workload_path)
-            self.__base_workload_props = dict(config.items('config'))
+            self.__base_workload_props = dict(config['config'])
 
             #props = Properties()
             #with open(self.workload_path) as wf:
