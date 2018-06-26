@@ -90,7 +90,7 @@ CLEAN_COMMANDS = {
         "--host",
         "{MONGO_HOST}",
         "--eval",
-        "db.dropDatabase();",
+        "db.dropDatabase();db.getSiblingDB('config');db.collections.remove( { _id: /^ycsb\./ } );db.databases.remove( { _id: 'ycsb' } );db.chunks.remove( { ns: /^ycsb\./ } );db.locks.remove( { _id: /^ycsb\./ } );db.adminCommand('flushRouterConfig');db.getSiblingDB('ycsb');sh.enableSharding('ycsb');db.usertable.createIndex({_id: 'hashed'});sh.shardCollection( 'ycsb.usertable', { _id : 'hashed' } );",
         "{MONGO_DBNAME}"
     ],
     'redis': [
